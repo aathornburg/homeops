@@ -1,7 +1,3 @@
-## Evidence and Rationale
-
-React tooling is much less opiniated than Angular tooling. Angular prescribes - or even has it built-in - its own set of tooling for things like linting and formatting. Conversely, there are some opinions for this kind of tooling in React but its ecosystem is certainly more "open" in comparison. That being said, with Vite being the chosen build tool, ESLint is a natural progression from that as Vite's react-ts template includes an ESLint baseline.
-
 # [0000] - [Linting and Formatting Tools]
 
 * **Date:** 2026-07-11
