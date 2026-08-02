@@ -1,4 +1,4 @@
-# [0000] - [CSS Framework]
+# [0002] - [CSS Framework]
 
 * **Date:** 2026-07-12
 * **Status:** Proposed

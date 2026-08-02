@@ -1,7 +1,35 @@
-@import url('fonts.css');
-@import "tailwindcss";
+# Semantic Color Tokens Implementation Plan
 
-:root {
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Replace the Vite starter colors in `index.css` with a complete, accessible two-layer HomeOps light/dark color-token system.
+
+**Architecture:** Literal light and dark palette primitives coexist in `:root`. Semantic tokens map to light primitives by default, and the existing dark-mode media query remaps only semantic tokens. Global selectors consume semantic tokens exclusively.
+
+**Tech Stack:** CSS custom properties, Vite 8, React 19, Node.js verification scripts
+
+---
+
+### Task 1: Replace starter colors with the HomeOps token contract
+
+**Files:**
+- Modify: `apps/web/src/index.css:3-52`
+
+- [ ] **Step 1: Run a token-contract check and verify the current stylesheet fails**
+
+Run from `apps/web`:
+
+```powershell
+node -e "const fs=require('node:fs');const css=fs.readFileSync('src/index.css','utf8');const required=['--palette-light-canvas','--palette-dark-worktop','--color-background-canvas','--color-action-primary','--color-status-danger-surface','--color-premium'];const missing=required.filter(token=>!css.includes(token+':'));if(missing.length){console.error('Missing:',missing.join(', '));process.exit(1)}"
+```
+
+Expected: exit code 1 and all six required tokens reported as missing.
+
+- [ ] **Step 2: Replace the existing color declarations in `:root` with immutable palette primitives and light semantic mappings**
+
+Keep the existing font declarations and rendering properties. Insert the following declarations at the start of `:root`:
+
+```css
   /* Light palette primitives */
   --palette-light-canvas: #fafaf8;
   --palette-light-surface: #ffffff;
@@ -126,22 +154,13 @@
   --color-premium-active: var(--palette-light-violet-active);
   --color-premium-surface: var(--palette-light-violet-soft);
   --color-premium-border: var(--palette-light-violet-border);
+```
 
-  --sans: "Nunito Sans", system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: "Fraunces", system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+- [ ] **Step 3: Replace the dark-mode starter overrides with dark semantic mappings**
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--color-text-secondary);
-  background: var(--color-background-canvas);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+Use the following complete dark semantic block:
 
+```css
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background-canvas: var(--palette-dark-worktop);
@@ -195,38 +214,79 @@
     --color-premium-border: var(--palette-dark-violet-border);
   }
 }
+```
 
+- [ ] **Step 4: Migrate the global selectors to semantic tokens**
+
+Change the root foreground/background and the two existing selector references:
+
+```css
+  color: var(--color-text-secondary);
+  background: var(--color-background-canvas);
+```
+
+```css
 #root {
-  /* width: 1126px; */
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
   border-inline: 1px solid var(--color-border-default);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
 }
+```
 
-body {
-  margin: 0;
-}
-
+```css
 h1,
 h2 {
-  font-family: var(--heading);
   color: var(--color-text-primary);
 }
+```
 
-h1 {
-  letter-spacing: -1.68px;
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-}
-p {
-  margin: 0;
-}
+Remove the obsolete commented `code`/`.counter` block so it cannot preserve references to deleted starter tokens.
+
+- [ ] **Step 5: Re-run the token-contract check**
+
+Run the command from Step 1.
+
+Expected: exit code 0 with no output.
+
+- [ ] **Step 6: Confirm no starter color tokens remain**
+
+Run from the repository root:
+
+```powershell
+rg -n -e "--text:" -e "--text-h:" -e "--bg:" -e "--border:" -e "--code-bg:" -e "--accent:" -e "--accent-bg:" -e "--accent-border:" -e "--social-bg:" apps/web/src/index.css
+```
+
+Expected: exit code 1 with no matches.
+
+### Task 2: Verify accessibility and build integrity
+
+**Files:**
+- Verify: `apps/web/src/index.css`
+
+- [ ] **Step 1: Run contrast assertions for both themes**
+
+Run from `apps/web`:
+
+```powershell
+node -e "const pairs=[['light primary','#1f2523','#fafaf8',4.5],['light secondary','#4f5d58','#fafaf8',4.5],['light muted','#68746e','#fafaf8',4.5],['light action','#ffffff','#2f6f5e',4.5],['light warning','#7a5c2e','#f6f0e4',4.5],['light danger','#a8423d','#f8ebea',4.5],['light info','#4267a3','#eaf0f8',4.5],['light premium','#6f55a3','#f1edf7',4.5],['dark primary','#f1f5f2','#101614',4.5],['dark secondary','#b8c4be','#101614',4.5],['dark muted','#8e9d96','#101614',4.5],['dark action','#101614','#72ac9b',4.5],['dark warning','#c2a36b','#352d20',4.5],['dark danger','#e08c87','#3a2322',4.5],['dark info','#8fafdc','#1e2b3d',4.5],['dark premium','#b29ed6','#30283c',4.5],['light strong border','#82948b','#fafaf8',3],['dark strong border','#58766b','#1b2622',3]];const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);const lum=h=>rgb(h).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4).reduce((n,c,i)=>n+c*[.2126,.7152,.0722][i],0);let failed=false;for(const [name,a,b,min] of pairs){const x=lum(a),y=lum(b),ratio=(Math.max(x,y)+.05)/(Math.min(x,y)+.05);console.log(name,ratio.toFixed(2));if(ratio<min)failed=true}process.exit(failed?1:0)"
+```
+
+Expected: exit code 0; every text pairing is at least 4.5 and each strong border pairing is at least 3.0.
+
+- [ ] **Step 2: Run the production build**
+
+Run from `apps/web`:
+
+```powershell
+npm.cmd run build
+```
+
+Expected: TypeScript and Vite complete successfully and emit `dist`.
+
+- [ ] **Step 3: Review the focused diff**
+
+Run from the repository root:
+
+```powershell
+git diff -- apps/web/src/index.css
+```
+
+Expected: only the intended token definitions, theme mappings, migrated references, and obsolete commented starter block removal appear.
