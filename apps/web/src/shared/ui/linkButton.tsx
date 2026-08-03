@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { createLink } from '@tanstack/react-router'
 
-interface LinkButtonProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {}
+type LinkButtonProps = React.AnchorHTMLAttributes<HTMLAnchorElement>
 
 const LinkButtonComponent = React.forwardRef<HTMLAnchorElement, LinkButtonProps>(
   (props, ref) => {

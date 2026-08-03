@@ -9,6 +9,15 @@ export default defineConfig([
   globalIgnores(['dist', '**/routeTree.gen.ts']),
   {
     files: ['**/*.{ts,tsx}'],
+    rules: {
+      "react-refresh/only-export-components": [
+        "error",
+        {
+          'allowConstantExport': true,
+          'extraHOCs': ['createLink']
+        }
+      ]
+    },
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
@@ -17,6 +26,16 @@ export default defineConfig([
     ],
     languageOptions: {
       globals: globals.browser,
+    },
+  },
+  {
+    files: ['src/routes/**/*.{ts,tsx}'],
+    ignores: [
+      'src/routes/**/-*.{ts,tsx}',
+      'src/routes/**/-*/**',
+    ],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])

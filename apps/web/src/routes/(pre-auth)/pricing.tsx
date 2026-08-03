@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/(pre-auth)/pricing')({
-  component: RouteComponent,
-})
+  component: PricingComponent,
+});
 
-function RouteComponent() {
+function PricingComponent() {
   return <div>Hello "/pricing"!</div>
 }
