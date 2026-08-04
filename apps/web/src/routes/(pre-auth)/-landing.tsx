@@ -1,3 +1,4 @@
+import { CalendarDays, CircleCheckBig, House, UsersRound } from "lucide-react";
 import { PreAuthHeader } from "../../shared/layout/preAuthHeader";
 import { LinkButton } from "../../shared/ui/linkButton";
 
@@ -42,7 +43,24 @@ export function LandingComponent() {
                 className="ml-5 rounded font-bold bg-(color:--color-background-canvas) color px-4 py-2.5 text-(color:--color-text-primary) hover:bg-(color:--color-background-panel) border-2 border-(color:--color-border-default)"
               >Log in</LinkButton>
             </div>
-            <div className="mt-15 rounded border-1 border-(color:--color-border-subtle)"></div>
+            <div className="flex mt-15 p-4 rounded border-1 border-(color:--color-border-subtle) [&>*:not(:last-child)]:border-r-1 [&>*:not(:last-child)]:border-(color:--color-border-subtle) [&>*]:px-4 [&>*]:py-2">
+              <div className="flex items-center">
+                <CircleCheckBig />
+                <span className="ml-2">Stay on top of daily tasks</span>
+              </div>
+              <div className="flex items-center">
+                <CalendarDays />
+                <span className="ml-2">Plan ahead for what matters</span>
+              </div>
+              <div className="flex items-center">
+                <UsersRound />
+                <span className="ml-2">Share the load, see progress</span>
+              </div>
+              <div className="flex items-center">
+                <House color="var(--color-status-warning)" />
+                <span className="ml-2">Keep your home running smoothly</span>
+              </div>
+            </div>
           </div>
         </div>
       </main>
