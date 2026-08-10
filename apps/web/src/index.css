@@ -210,6 +210,9 @@
 
 body {
   margin: 0;
+  font: inherit;
+  color: inherit;
+  background: transparent;
 }
 
 h1,

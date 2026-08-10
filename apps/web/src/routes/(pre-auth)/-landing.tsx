@@ -2,16 +2,43 @@ import { CalendarDays, CircleCheckBig, House, UsersRound } from "lucide-react";
 import { PreAuthHeader } from "../../shared/layout/preAuthHeader";
 import { LinkButton } from "../../shared/ui/linkButton";
 
+function BenefitItem(props: { title: string, icon: React.ReactNode }) {
+  return (
+    <div className="relative flex items-center text-left p-4">
+      {props.icon}
+      <span className="ml-4">{props.title}</span>
+      <span
+        aria-hidden="true"
+        className="
+          pointer-events-none absolute
+          -right-2 top-1/2
+          h-4/5 w-px -translate-y-1/2
+          bg-(color:--color-border-subtle)
+        "
+      />
+      <span
+        aria-hidden="true"
+        className="
+          pointer-events-none absolute
+          -bottom-2 left-1/2
+          h-px w-4/5 -translate-x-1/2
+          bg-(color:--color-border-subtle)
+        "
+      />
+    </div>
+  );
+}
+
 export function LandingComponent() {
   return (
     <>
       <PreAuthHeader />
       <main className="">
-        <div className="flex items-center justify-between relative [--hero-start:30%]">
+        <div className="relative">
           <div
             aria-hidden="true"
             className="
-              absolute -right-0 -top-0 -bottom-0 -z-10
+              absolute inset-0 -z-10
               bg-center h-full
             "
           >
@@ -25,9 +52,9 @@ export function LandingComponent() {
                 to-transparent
               "
             />
-            <picture>
-              <source srcSet="/hero-dark.png" media="(prefers-color-scheme: dark)" />
-              <img src="/hero-light.png" alt="" className="h-full" />
+            <picture className="w-full h-full">
+              <source srcSet="/hero-responsive-dark.png" media="(prefers-color-scheme: dark)" />
+              <img src="/hero-responsive-light.png" alt="" className="w-full h-full object-cover" />
             </picture>
           </div>
           <div className="w-3/5 p-20 text-left">
@@ -43,23 +70,19 @@ export function LandingComponent() {
                 className="ml-5 rounded font-bold bg-(color:--color-background-canvas) color px-4 py-2.5 text-(color:--color-text-primary) hover:bg-(color:--color-background-panel) border-2 border-(color:--color-border-default)"
               >Log in</LinkButton>
             </div>
-            <div className="flex mt-15 p-4 rounded border-1 border-(color:--color-border-subtle) [&>*:not(:last-child)]:border-r-1 [&>*:not(:last-child)]:border-(color:--color-border-subtle) [&>*]:px-4 [&>*]:py-2">
-              <div className="flex items-center">
-                <CircleCheckBig />
-                <span className="ml-2">Stay on top of daily tasks</span>
-              </div>
-              <div className="flex items-center">
-                <CalendarDays />
-                <span className="ml-2">Plan ahead for what matters</span>
-              </div>
-              <div className="flex items-center">
-                <UsersRound />
-                <span className="ml-2">Share the load, see progress</span>
-              </div>
-              <div className="flex items-center">
-                <House color="var(--color-status-warning)" />
-                <span className="ml-2">Keep your home running smoothly</span>
-              </div>
+          </div>
+          <div className="px-20 py-15">
+            <div
+              className="
+                grid gap-4 grid-cols-4 max-[1100px]:grid-cols-2
+                leading-5 overflow-hidden
+                bg-(color:--color-border-subtle)/50 rounded border-1 border-(color:--color-border-subtle)
+              "
+            >
+              <BenefitItem icon={<CircleCheckBig size={36} />} title="Stay on top of daily tasks" />
+              <BenefitItem icon={<CalendarDays size={36} />} title="Plan ahead for what matters" />
+              <BenefitItem icon={<UsersRound size={36} />} title="Share the load, see progress" />
+              <BenefitItem icon={<House size={36} color="var(--color-status-warning)" />} title="Keep your home running smoothly" />
             </div>
           </div>
         </div>

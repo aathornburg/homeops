@@ -3,11 +3,9 @@ import { LandingComponent } from './(pre-auth)/-landing'
 
 export const Route = createFileRoute('/')({
   component: () => {
-    if (!isAuthenticated()) {
-      return <LandingComponent />
-    } else {
-      return <TodayComponent />
-    }
+    return (
+        !isAuthenticated() ? <LandingComponent /> : <TodayComponent />
+    );
   }
 })
 
