@@ -442,3 +442,39 @@ Acceptance criteria:
 ### First action next session
 
 Before writing JSX, decide and write down the ownership boundary: the post-auth layout owns the global header, navigation, and route outlet; the `Today` page owns the heading and task sections. Then create the smallest TanStack Router structure that can render `/today` inside that shell.
+
+## Session End - 2026-08-10
+
+### Session state
+
+- Branch: `main`.
+- HEAD: `a04f09d` (`feat(web): adopt Mantine and finish responsive landing shell`), aligned with `origin/main`.
+- The post-auth routing work is uncommitted and unverified.
+- Pre-existing excluded artifacts remain untracked: `.impeccable/critique/` and the two design-reference images.
+
+### Work started after the checkpoint commit
+
+- Simplified the root index route so `/` renders the existing `LandingComponent` directly.
+- Added `(post-auth)/today.tsx`; TanStack generated a public `/today` path while retaining `/(post-auth)/today` as the internal route ID.
+- Sketched `PostAuthShell` with an `Outlet` and a scrollable main-content region.
+- TanStack regenerated `routeTree.gen.ts` for the new Today route.
+
+### Decisions and rationale
+
+- Keep `/` as the public landing page.
+- Give Today its own canonical `/today` route.
+- Once Clerk exists, authenticated visits to `/` should redirect to `/today`.
+- Use `(post-auth)` only as an organizational route group; it does not create a component hierarchy.
+- Add an underscore-prefixed authenticated pathless layout to own the auth guard and `PostAuthShell` without adding a URL segment.
+
+### Partial work and known review items
+
+- `PostAuthShell` is not yet wired into the route tree; `/today` currently remains a direct child of the root route.
+- The file is currently named `postAuthShelll.tsx` with three trailing `l` characters and should be corrected by the developer.
+- `index.tsx` still imports `Link` after removing the temporary Today component; this is likely unused.
+- `apps/web/.tanstack/tmp/` contains generated temporary files and should be reviewed rather than committed automatically.
+- No lint, build, browser review, or commit was run after these post-auth changes.
+
+### First action next session
+
+Create the smallest underscore-prefixed authenticated pathless route that renders `PostAuthShell` and an `Outlet`, then nest the Today route beneath it so `/today` renders through the shell. While doing that, correct the shell filename typo and remove the stale `Link` import before running the start-of-session review.

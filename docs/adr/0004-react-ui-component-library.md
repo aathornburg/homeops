@@ -1,14 +1,19 @@
 # [0004] - [React UI Component Library]
 
 * **Date:** 2026-08-08
-* **Status:** Proposed
+* **Last Updated:** 2026-08-15
+* **Status:** Accepted
 * **Deciders:** Alan
 * **Consulted:** N/A
 * **Informed:** N/A
 * **AI-consulted ADR:** Yes
 
 ## Context
-In order to save time - and potentially mirror enterprise applications, where they often have their own library - HomeOps will use a UI library. This way, I won't have to create my own custom components and ensure that they are functional and accessible.
+HomeOps needs a consistent approach to UI controls, layout, typography, theming, and accessible interactions. A component library can reduce the time spent implementing and maintaining these concerns, leaving more time for React architecture and product behavior.
+
+Using a component library creates coupling to its APIs, conventions, and release cycle. Restricting Mantine to complex controls while using native HTML and Tailwind for all basic layout would reduce some visible coupling, but it would also require the application to maintain two competing sets of UI conventions. A future migration away from Mantine would remain a significant project because the most expensive dependencies are behavior-heavy components, theming, focus management, overlays, forms, and responsive behavior—not simple layout components alone.
+
+Enterprise applications commonly accept this coupling after selecting a design system or component library because consistency and delivery speed are more valuable than preserving a hypothetical low-cost migration path.
 
 ## Considered Options
 * **Option 1: Material UI**
@@ -28,22 +33,36 @@ In order to save time - and potentially mirror enterprise applications, where th
 * **Chosen Option:** Option 2: Mantine
 * **Rationale:** Mantine provides the best balance between finished UI components and a neutral visual identity. It avoids spending a significant amount of time deciding details such as button padding and input states, while still allowing the existing HomeOps colors, typography, radii, and light and dark themes to be applied globally. This keeps the focus on learning React composition, routing, state ownership, feature boundaries, data flow, and testing.
 
-Mantine will be used for generic UI controls and app-shell primitives. Tailwind will continue to be used for page layout and the existing custom marketing pages. HomeOps-specific components such as task rows, status chips, household selectors, and premium callouts will remain application components because they represent product concepts rather than generic UI controls.
+Mantine is an intentional, strategic dependency for the HomeOps web application. Its components will be used consistently when they provide an appropriate abstraction, including:
+
+* Interactive controls such as buttons, inputs, comboboxes, menus, modals, and drawers.
+* Layout primitives such as `Group`, `Stack`, `Container`, and `AppShell`.
+* Typography and presentation primitives such as `Text`, `Title`, and `ThemeIcon`.
+
+Native semantic HTML will still be used when the element's document meaning matters or when a Mantine component adds no useful behavior or convention. Examples include `main`, `nav`, `section`, `article`, headings, and forms. Mantine's polymorphic components may render these semantic elements where appropriate.
+
+Tailwind remains available for application-specific styling, responsive composition, and custom visual treatments. It is not a parallel replacement for every Mantine layout or typography component. When a Mantine component clearly expresses the intended UI, using it is preferred over avoiding the dependency solely to make a hypothetical future migration easier.
+
+HomeOps-specific components such as task rows, status chips, household selectors, and premium callouts will remain application components because they represent product concepts rather than generic UI controls. These components may compose Mantine primitives directly.
+
+Mantine components will not be wrapped one-for-one merely to conceal the dependency. Local abstractions should represent repeated HomeOps behavior, design rules, or product concepts. If HomeOps later develops its own design system or adopts another library, that change will be treated as a deliberate migration rather than a constraint imposed on current development.
 
 Adoption will be incremental. The first proof will be an Add Task dialog that exercises a modal, text input, select or combobox, date input, buttons, validation display, responsive layout, and both color schemes. Existing components will only migrate when feature work naturally touches them.
 
 ## Consequences
-* **Positive, so-called "good" effects:** Common controls will be available without building and styling them from scratch. The application can retain the HomeOps identity through one shared Mantine theme. More development time can be spent on React feature architecture and product behavior.
-* **Negative, so-called "bad" effects:** Mantine and Tailwind will coexist, which can create unclear ownership or CSS-order problems if their responsibilities are not kept separate. The application also becomes dependent on Mantine and may need migration work for future major releases.
-* **Mitigation Strategy:** Configure the Mantine theme and CSS layer order once. Use Mantine for generic controls, Tailwind for layout and custom marketing surfaces, and local components for HomeOps product concepts. Avoid per-instance style overrides and avoid wrapping every Mantine component without a repeated product requirement. Tests should use accessible roles, labels, and visible behavior instead of Mantine class names or internal markup.
+* **Positive, so-called "good" effects:** Controls, layout, and typography share one set of conventions. Developers write less routine styling and can compose interfaces faster. The application benefits from Mantine's accessibility behavior, responsive APIs, theme integration, and consistent component vocabulary.
+* **Negative, so-called "bad" effects:** The application is intentionally coupled to Mantine's APIs and release cycle. Replacing Mantine would require changes across much of the UI. Mantine and Tailwind will coexist, which can cause inconsistent conventions or CSS-order problems if their responsibilities are unclear.
+* **Mitigation Strategy:** Configure the Mantine theme and CSS layer order centrally. Prefer Mantine for reusable UI primitives and Tailwind for application-specific styling and composition. Keep product concepts in local components, avoid wrappers that only mirror Mantine's API, and test through accessible roles, labels, and visible behavior rather than Mantine class names or internal markup.
 
 ## Pros and Cons of the Decision
 * **Pros:**
   * Provides styled, accessible components with minimal routine UI work.
+  * Establishes consistent layout and typography conventions in addition to controls.
   * Leaves React feature architecture visible and owned by the application.
   * Fits the existing HomeOps identity better than Material UI.
   * Can be adopted incrementally without rewriting the current landing page.
 * **Cons:**
   * Adds a second styling system alongside Tailwind.
+  * Intentionally couples a broad portion of the UI to Mantine.
   * Is less familiar from an enterprise perspective than Material UI.
   * Requires deliberate dependency upgrades and clear styling boundaries.

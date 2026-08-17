@@ -9,15 +9,44 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PostAuthRouteRouteImport } from './routes/_postAuth/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PostAuthTodayRouteImport } from './routes/_postAuth/today'
+import { Route as PostAuthTasksRouteImport } from './routes/_postAuth/tasks'
+import { Route as PostAuthHouseholdRouteImport } from './routes/_postAuth/household'
+import { Route as PostAuthCalendarRouteImport } from './routes/_postAuth/calendar'
 import { Route as preAuthWhyRouteImport } from './routes/(pre-auth)/why'
 import { Route as preAuthResourcesRouteImport } from './routes/(pre-auth)/resources'
 import { Route as preAuthPricingRouteImport } from './routes/(pre-auth)/pricing'
 
+const PostAuthRouteRoute = PostAuthRouteRouteImport.update({
+  id: '/_postAuth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const PostAuthTodayRoute = PostAuthTodayRouteImport.update({
+  id: '/today',
+  path: '/today',
+  getParentRoute: () => PostAuthRouteRoute,
+} as any)
+const PostAuthTasksRoute = PostAuthTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => PostAuthRouteRoute,
+} as any)
+const PostAuthHouseholdRoute = PostAuthHouseholdRouteImport.update({
+  id: '/household',
+  path: '/household',
+  getParentRoute: () => PostAuthRouteRoute,
+} as any)
+const PostAuthCalendarRoute = PostAuthCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => PostAuthRouteRoute,
 } as any)
 const preAuthWhyRoute = preAuthWhyRouteImport.update({
   id: '/(pre-auth)/why',
@@ -40,35 +69,70 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof preAuthPricingRoute
   '/resources': typeof preAuthResourcesRoute
   '/why': typeof preAuthWhyRoute
+  '/calendar': typeof PostAuthCalendarRoute
+  '/household': typeof PostAuthHouseholdRoute
+  '/tasks': typeof PostAuthTasksRoute
+  '/today': typeof PostAuthTodayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/pricing': typeof preAuthPricingRoute
   '/resources': typeof preAuthResourcesRoute
   '/why': typeof preAuthWhyRoute
+  '/calendar': typeof PostAuthCalendarRoute
+  '/household': typeof PostAuthHouseholdRoute
+  '/tasks': typeof PostAuthTasksRoute
+  '/today': typeof PostAuthTodayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_postAuth': typeof PostAuthRouteRouteWithChildren
   '/(pre-auth)/pricing': typeof preAuthPricingRoute
   '/(pre-auth)/resources': typeof preAuthResourcesRoute
   '/(pre-auth)/why': typeof preAuthWhyRoute
+  '/_postAuth/calendar': typeof PostAuthCalendarRoute
+  '/_postAuth/household': typeof PostAuthHouseholdRoute
+  '/_postAuth/tasks': typeof PostAuthTasksRoute
+  '/_postAuth/today': typeof PostAuthTodayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pricing' | '/resources' | '/why'
+  fullPaths:
+    | '/'
+    | '/pricing'
+    | '/resources'
+    | '/why'
+    | '/calendar'
+    | '/household'
+    | '/tasks'
+    | '/today'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pricing' | '/resources' | '/why'
+  to:
+    | '/'
+    | '/pricing'
+    | '/resources'
+    | '/why'
+    | '/calendar'
+    | '/household'
+    | '/tasks'
+    | '/today'
   id:
     | '__root__'
     | '/'
+    | '/_postAuth'
     | '/(pre-auth)/pricing'
     | '/(pre-auth)/resources'
     | '/(pre-auth)/why'
+    | '/_postAuth/calendar'
+    | '/_postAuth/household'
+    | '/_postAuth/tasks'
+    | '/_postAuth/today'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PostAuthRouteRoute: typeof PostAuthRouteRouteWithChildren
   preAuthPricingRoute: typeof preAuthPricingRoute
   preAuthResourcesRoute: typeof preAuthResourcesRoute
   preAuthWhyRoute: typeof preAuthWhyRoute
@@ -76,12 +140,47 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_postAuth': {
+      id: '/_postAuth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof PostAuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_postAuth/today': {
+      id: '/_postAuth/today'
+      path: '/today'
+      fullPath: '/today'
+      preLoaderRoute: typeof PostAuthTodayRouteImport
+      parentRoute: typeof PostAuthRouteRoute
+    }
+    '/_postAuth/tasks': {
+      id: '/_postAuth/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof PostAuthTasksRouteImport
+      parentRoute: typeof PostAuthRouteRoute
+    }
+    '/_postAuth/household': {
+      id: '/_postAuth/household'
+      path: '/household'
+      fullPath: '/household'
+      preLoaderRoute: typeof PostAuthHouseholdRouteImport
+      parentRoute: typeof PostAuthRouteRoute
+    }
+    '/_postAuth/calendar': {
+      id: '/_postAuth/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof PostAuthCalendarRouteImport
+      parentRoute: typeof PostAuthRouteRoute
     }
     '/(pre-auth)/why': {
       id: '/(pre-auth)/why'
@@ -107,8 +206,27 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface PostAuthRouteRouteChildren {
+  PostAuthCalendarRoute: typeof PostAuthCalendarRoute
+  PostAuthHouseholdRoute: typeof PostAuthHouseholdRoute
+  PostAuthTasksRoute: typeof PostAuthTasksRoute
+  PostAuthTodayRoute: typeof PostAuthTodayRoute
+}
+
+const PostAuthRouteRouteChildren: PostAuthRouteRouteChildren = {
+  PostAuthCalendarRoute: PostAuthCalendarRoute,
+  PostAuthHouseholdRoute: PostAuthHouseholdRoute,
+  PostAuthTasksRoute: PostAuthTasksRoute,
+  PostAuthTodayRoute: PostAuthTodayRoute,
+}
+
+const PostAuthRouteRouteWithChildren = PostAuthRouteRoute._addFileChildren(
+  PostAuthRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PostAuthRouteRoute: PostAuthRouteRouteWithChildren,
   preAuthPricingRoute: preAuthPricingRoute,
   preAuthResourcesRoute: preAuthResourcesRoute,
   preAuthWhyRoute: preAuthWhyRoute,
