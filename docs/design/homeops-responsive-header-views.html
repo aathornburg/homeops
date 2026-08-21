@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HomeOps Responsive Header Views</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2523;
+      --text: #4f5d58;
+      --muted: #6f7c76;
+      --canvas: #fafaf8;
+      --surface: #ffffff;
+      --panel: #f2f5f1;
+      --border: #dde4de;
+      --primary: #2f6f5e;
+      --primary-soft: #e5f1ec;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "Nunito Sans", system-ui, sans-serif;
+    }
+
+    main {
+      width: min(1500px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 48px 0 56px;
+    }
+
+    h1 {
+      margin: 0;
+      font: 650 36px/1.12 "Fraunces", Georgia, serif;
+      letter-spacing: -0.02em;
+    }
+
+    .lede {
+      max-width: 760px;
+      margin: 12px 0 26px;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .identity-rule {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      color: var(--primary);
+      background: var(--primary-soft);
+      font-weight: 700;
+    }
+
+    .views {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 0.72fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .view h2 {
+      margin: 0 0 9px;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .device {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: 0 4px 8px rgba(31, 37, 35, 0.06);
+    }
+
+    .device-label {
+      padding: 8px 11px;
+      color: var(--muted);
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .shell { display: flex; min-height: 240px; }
+
+    .sidebar {
+      width: 128px;
+      flex: 0 0 128px;
+      padding: 20px 14px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+    }
+
+    .wordmark {
+      color: var(--ink);
+      font: 700 17px/1 "Fraunces", Georgia, serif;
+      white-space: nowrap;
+    }
+
+    .nav-line {
+      height: 8px;
+      margin-top: 17px;
+      border-radius: 4px;
+      background: #d5ddd7;
+    }
+
+    .nav-line.active { background: #bfd7cc; }
+    .app-main { flex: 1; min-width: 0; }
+
+    .header {
+      height: 60px;
+      display: grid;
+      grid-template-columns: minmax(128px, 1fr) minmax(220px, 390px) minmax(128px, 1fr);
+      align-items: center;
+      padding: 0 15px;
+      background: var(--canvas);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .left-cluster,
+    .right-cluster {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .left-cluster { justify-self: start; }
+    .right-cluster { justify-self: end; }
+
+    .search {
+      width: 100%;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 11px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .shortcut {
+      padding: 3px 5px;
+      border-radius: 4px;
+      background: var(--panel);
+      font-size: 9px;
+    }
+
+    .icon {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .avatar {
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      font-size: 12px;
+    }
+
+    .page { padding: 22px; }
+    .page-title { width: 38%; height: 12px; margin-bottom: 18px; border-radius: 6px; background: #c5d1ca; }
+    .row { height: 9px; margin-top: 12px; border-radius: 5px; background: #e5eae6; }
+
+    .tablet .shell,
+    .phone .shell { display: block; min-height: 240px; }
+
+    .tablet .header {
+      grid-template-columns: minmax(155px, 1fr) minmax(210px, 340px) minmax(155px, 1fr);
+    }
+
+    .tablet .wordmark { font-size: 15px; }
+
+    .phone { max-width: 300px; margin-inline: auto; }
+
+    .phone .header {
+      grid-template-columns: 44px minmax(0, 1fr) 44px;
+      padding: 0 8px;
+    }
+
+    .phone .wordmark { justify-self: center; font-size: 16px; }
+    .phone .icon:last-child { justify-self: end; }
+
+    .rules {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .rule {
+      padding: 15px;
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
+    .rule strong { display: block; margin-bottom: 5px; }
+    .rule span { color: var(--text); font-size: 13px; line-height: 1.45; }
+
+    .breakpoints {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      background: var(--surface);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 980px) {
+      main { width: min(720px, calc(100% - 32px)); padding-top: 32px; }
+      .views, .rules { grid-template-columns: 1fr; }
+      .phone { max-width: 360px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>HomeOps responsive header</h1>
+    <p class="lede">Approved adaptive-roles direction: the product identity remains visible at every width, while search expands or contracts according to available space. Task creation remains page-owned rather than becoming a global-header action.</p>
+
+    <div class="identity-rule">✓ HomeOps is visible without opening navigation at every width.</div>
+
+    <section class="views" aria-label="Responsive header views">
+      <article class="view">
+        <h2>Desktop</h2>
+        <div class="device">
+          <div class="device-label">Persistent sidebar owns identity</div>
+          <div class="shell">
+            <aside class="sidebar"><div class="wordmark">HomeOps</div><div class="nav-line active"></div><div class="nav-line"></div><div class="nav-line"></div><div class="nav-line"></div></aside>
+            <div class="app-main"><div class="header"><span></span><div class="search"><span>⌕&nbsp; Search tasks, notes…</span><span class="shortcut">Ctrl K</span></div><div class="right-cluster"><span class="icon avatar">A</span></div></div><div class="page"><div class="page-title"></div><div class="row"></div><div class="row"></div><div class="row"></div></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="view">
+        <h2>Tablet</h2>
+        <div class="device tablet">
+          <div class="device-label">Left cluster owns identity; search stays geometrically centered</div>
+          <div class="shell"><div class="header"><div class="left-cluster"><span class="icon">☰</span><span class="wordmark">HomeOps</span></div><div class="search"><span>⌕&nbsp; Search tasks, notes…</span></div><span></span></div><div class="page"><div class="page-title"></div><div class="row"></div><div class="row"></div><div class="row"></div></div></div>
+        </div>
+      </article>
+
+      <article class="view">
+        <h2>Phone</h2>
+        <div class="device phone">
+          <div class="device-label">Centered identity; search collapses to an icon</div>
+          <div class="shell"><div class="header"><span class="icon">☰</span><span class="wordmark">HomeOps</span><span class="icon">⌕</span></div><div class="page"><div class="page-title"></div><div class="row"></div><div class="row"></div><div class="row"></div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="rules" aria-label="Design rules">
+      <div class="rule"><strong>One identity rule</strong><span>The brand moves between sidebar and header, but it never disappears behind navigation.</span></div>
+      <div class="rule"><strong>Independent center</strong><span>Tablet uses three explicit regions, so the burger and wordmark cannot push search off-center.</span></div>
+      <div class="rule"><strong>Progressive search</strong><span>Use a full field on desktop/tablet and a one-tap icon on phone; both open the same Spotlight.</span></div>
+    </section>
+
+    <div class="breakpoints"><strong>Starting breakpoint contract:</strong> compact phone composition below <code>sm</code> (~768px); tablet composition from <code>sm</code> through <code>lg</code>; persistent-sidebar desktop composition at <code>lg</code> and above. Validate immediately around both transitions and adjust only when the content stops fitting.</div>
+  </main>
+</body>
+</html>
