@@ -4,13 +4,15 @@ A hands-on enterprise React learning project built around a personally useful ho
 
 ## 1. Project Purpose
 
-HomeOps is a household task/project management app designed to be useful at home while intentionally exercising enterprise-level frontend and backend architecture decisions.
+HomeOps is a household operations app for managing tasks, projects, and durable property knowledge while intentionally exercising enterprise-level frontend and backend architecture decisions.
 
 The goal is not to build the smallest possible to-do app. The goal is to build a realistic application where decisions around routing, state management, data fetching, forms, validation, backend technology, persistence, security, scheduling, and API contracts are made deliberately and documented.
 
 ## 2. Core App Concept
 
 HomeOps manages household work such as chores, home maintenance, lawn care, errands, recurring tasks, project planning, and shared household responsibilities.
+
+HomeOps also includes a House Binder within the Household area. The Binder preserves durable information about home systems and equipment through curated structured fields and contextual freeform notes.
 
 Example tasks:
 
@@ -41,6 +43,9 @@ Core concepts:
 - Notifications
 - Audit/activity history
 - Calendar planning
+- House Binder sections
+- Structured property records
+- Contextual notes
 
 ## 3. Target Architecture
 
@@ -157,6 +162,8 @@ Initial domain objects:
 - TaskRecurrenceRule
 - TaskActivity
 - NotificationPreference
+- HouseBinderSection
+- HouseBinderFieldValue
 
 Possible task fields:
 
@@ -175,6 +182,7 @@ area
 category
 assigneeId
 projectId
+houseBinderSectionId
 createdAt
 updatedAt
 completedAt
@@ -199,6 +207,18 @@ Status rules:
 - A task can be WAITING when blocked by time, weather, shipping, a contractor, or someone else.
 - The backend should eventually own authoritative status calculation.
 - The frontend can derive display hints but should not be the source of truth for business rules.
+
+House Binder rules:
+
+- House Binder content belongs to a household.
+- HomeOps starter sections use a stable template identity, a curated field schema, and freeform notes.
+- The Version 1 starter set is HVAC, electrical, plumbing, generator, roof, and chimney, with one initialized section per template.
+- Households can add notes-only custom sections and can rename, reorder, archive, and restore any section.
+- Additional instances of a HomeOps template and destructive section deletion are deferred beyond the first version.
+- Household-created sections are notes-only in the first version.
+- A task can optionally reference one House Binder section without copying the section's notes into the task.
+- Notes remain contextual: Binder notes belong to a Binder section, task notes belong to a task, and future project notes belong to a project.
+- A generic top-level Notes feature is deferred until a distinct use case justifies it.
 
 ## 6. Project Roadmap
 
@@ -239,6 +259,9 @@ Features:
 - React Hook Form
 - Zod validation
 - Basic unit/component tests
+- House Binder frontend foundation within the Household page
+- Template-backed starter sections with structured fields and freeform notes
+- Custom notes-only Binder sections
 
 Learning goal:
 
@@ -256,7 +279,9 @@ Features:
 - Unblocks list
 - Task planning wizard
 - Redux Toolkit for unsaved multi-step planning state
-- Activity history
+- Task activity history
+- Optional task-to-Binder-section reference
+- Related tasks shown from a Binder section
 
 Learning goal:
 
@@ -273,10 +298,15 @@ Features:
 - Task CRUD endpoints
 - Project endpoints
 - Dependency endpoints
+- House Binder section and field-value endpoints
+- Persistence and validation for the optional task-to-Binder-section reference
+- Related-task query for a House Binder section
 - Validation
 - Transaction boundaries
 - OpenAPI documentation
 - Generated TypeScript client
+
+Version 3 remains a single-household development milestone. Multi-household production use is not allowed until Version 4 adds authentication, tenant enforcement, and role-based authorization.
 
 Learning goal:
 
@@ -295,6 +325,8 @@ Features:
 - Scheduled jobs
 - Notifications
 - Audit/activity history
+- Household permissions for House Binder changes
+- House Binder change history
 - Error handling standards
 - Observability/logging
 
@@ -310,8 +342,8 @@ Features:
 
 - Calendar integration
 - Weather-aware tasks
-- Attachments
-- Search
+- House Binder attachments for manuals, receipts, warranties, and related documents, gated by defined file limits, storage, malware scanning, retention, and download authorization
+- Full cross-feature search, including House Binder content
 - Feature flags
 - Deployment pipeline
 - Event-driven notification design
@@ -572,6 +604,6 @@ Examples:
 
 HomeOps should become:
 
-> A household task/project manager with dependencies, recurring tasks, due windows, blocked states, household sharing, notifications, audit history, and calendar planning.
+> A household operating system with tasks, projects, dependencies, recurring work, due windows, blocked states, a durable House Binder, household sharing, notifications, audit history, and calendar planning.
 
 It should be personally useful while serving as a realistic enterprise React and Spring Boot reference project.
