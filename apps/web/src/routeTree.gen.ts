@@ -13,6 +13,7 @@ import { Route as PostAuthRouteRouteImport } from './routes/_postAuth/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostAuthTodayRouteImport } from './routes/_postAuth/today'
 import { Route as PostAuthTasksRouteImport } from './routes/_postAuth/tasks'
+import { Route as PostAuthNotesRouteImport } from './routes/_postAuth/notes'
 import { Route as PostAuthHouseholdRouteImport } from './routes/_postAuth/household'
 import { Route as PostAuthCalendarRouteImport } from './routes/_postAuth/calendar'
 import { Route as preAuthWhyRouteImport } from './routes/(pre-auth)/why'
@@ -36,6 +37,11 @@ const PostAuthTodayRoute = PostAuthTodayRouteImport.update({
 const PostAuthTasksRoute = PostAuthTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
+  getParentRoute: () => PostAuthRouteRoute,
+} as any)
+const PostAuthNotesRoute = PostAuthNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
   getParentRoute: () => PostAuthRouteRoute,
 } as any)
 const PostAuthHouseholdRoute = PostAuthHouseholdRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/why': typeof preAuthWhyRoute
   '/calendar': typeof PostAuthCalendarRoute
   '/household': typeof PostAuthHouseholdRoute
+  '/notes': typeof PostAuthNotesRoute
   '/tasks': typeof PostAuthTasksRoute
   '/today': typeof PostAuthTodayRoute
 }
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/why': typeof preAuthWhyRoute
   '/calendar': typeof PostAuthCalendarRoute
   '/household': typeof PostAuthHouseholdRoute
+  '/notes': typeof PostAuthNotesRoute
   '/tasks': typeof PostAuthTasksRoute
   '/today': typeof PostAuthTodayRoute
 }
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/(pre-auth)/why': typeof preAuthWhyRoute
   '/_postAuth/calendar': typeof PostAuthCalendarRoute
   '/_postAuth/household': typeof PostAuthHouseholdRoute
+  '/_postAuth/notes': typeof PostAuthNotesRoute
   '/_postAuth/tasks': typeof PostAuthTasksRoute
   '/_postAuth/today': typeof PostAuthTodayRoute
 }
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/why'
     | '/calendar'
     | '/household'
+    | '/notes'
     | '/tasks'
     | '/today'
   fileRoutesByTo: FileRoutesByTo
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/why'
     | '/calendar'
     | '/household'
+    | '/notes'
     | '/tasks'
     | '/today'
   id:
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/(pre-auth)/why'
     | '/_postAuth/calendar'
     | '/_postAuth/household'
+    | '/_postAuth/notes'
     | '/_postAuth/tasks'
     | '/_postAuth/today'
   fileRoutesById: FileRoutesById
@@ -166,6 +178,13 @@ declare module '@tanstack/react-router' {
       path: '/tasks'
       fullPath: '/tasks'
       preLoaderRoute: typeof PostAuthTasksRouteImport
+      parentRoute: typeof PostAuthRouteRoute
+    }
+    '/_postAuth/notes': {
+      id: '/_postAuth/notes'
+      path: '/notes'
+      fullPath: '/notes'
+      preLoaderRoute: typeof PostAuthNotesRouteImport
       parentRoute: typeof PostAuthRouteRoute
     }
     '/_postAuth/household': {
@@ -209,6 +228,7 @@ declare module '@tanstack/react-router' {
 interface PostAuthRouteRouteChildren {
   PostAuthCalendarRoute: typeof PostAuthCalendarRoute
   PostAuthHouseholdRoute: typeof PostAuthHouseholdRoute
+  PostAuthNotesRoute: typeof PostAuthNotesRoute
   PostAuthTasksRoute: typeof PostAuthTasksRoute
   PostAuthTodayRoute: typeof PostAuthTodayRoute
 }
@@ -216,6 +236,7 @@ interface PostAuthRouteRouteChildren {
 const PostAuthRouteRouteChildren: PostAuthRouteRouteChildren = {
   PostAuthCalendarRoute: PostAuthCalendarRoute,
   PostAuthHouseholdRoute: PostAuthHouseholdRoute,
+  PostAuthNotesRoute: PostAuthNotesRoute,
   PostAuthTasksRoute: PostAuthTasksRoute,
   PostAuthTodayRoute: PostAuthTodayRoute,
 }

@@ -3,6 +3,8 @@ import { AppShell, Burger, Combobox, Divider, Group, InputBase, NavLink, Stack, 
 import { useDisclosure } from "@mantine/hooks";
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
+import { GlobalSearch } from "../../features/search/globalSearch";
+import { GlobalSearchIconTrigger } from "../../features/search/globalSearchIconTrigger";
 
 export const Route = createFileRoute('/_postAuth')({
   component: PostAuthShell,
@@ -33,10 +35,52 @@ function PostAuthShell() {
         collapsed: { mobile: !opened },
       }}
     >
-      <AppShell.Header style={{ backgroundColor: 'var(--color-background-canvas)', borderBottom: '1px solid var(--color-border-default)', borderBottomWidth: '1.5px' }}>
-        <Group h="100%" px="md">
-          <Burger opened={false} onClick={open} hiddenFrom="lg" size="sm" aria-label="Open menu" aria-expanded={opened} aria-controls="post-auth-navbar" />
-        </Group>
+      <AppShell.Header
+        style={{ backgroundColor: 'var(--color-background-canvas)', borderBottom: '1px solid var(--color-border-default)', borderBottomWidth: '1.5px' }}
+        classNames={{
+          header: `
+            grid h-full items-center gap-2 px-4
+            grid-cols-[minmax(2.75rem,1fr)_auto_minmax(2.75rem,1fr)]
+            min-[48rem]:grid-cols-[minmax(11rem,1fr)_minmax(0,28rem)_minmax(11rem,1fr)]
+            min-[75rem]:grid-cols-[minmax(0,1fr)_minmax(0,28rem)_minmax(0,1fr)]
+          `,
+        }}
+      >
+        <div className="justify-self-start flex items-center">
+          <Burger
+            opened={false}
+            className="min-[75rem]:hidden"
+            onClick={open}
+            aria-label="Open menu"
+            aria-expanded={false}
+            aria-controls="post-auth-navbar"
+            classNames={{
+              root: `
+                flex items-center justify-center
+                cursor-pointer
+                size-11! cursor-pointer rounded
+                hover:bg-(color:--color-surface-hover)!
+                active:bg-(color:--color-selected)!
+                focus-visible:outline-2
+                focus-visible:outline-(color:--color-focus-ring)!
+              `
+            }}
+          />
+          <Link
+            to="/today"
+            className="font-(family-name:--heading) text-2xl ml-3 hidden min-[48rem]:inline min-[75rem]:hidden"
+          >HomeOps</Link>
+        </div>
+        <div className="justify-self-center w-full">
+          <Link
+            to="/today"
+            className="font-(family-name:--heading) text-2xl ml-3 inline min-[48rem]:hidden"
+          >HomeOps</Link>
+          <GlobalSearch className="hidden min-[48rem]:block w-full" />
+        </div>
+        <div className="justify-self-end">
+          <GlobalSearchIconTrigger className="min-[48rem]:hidden!" />
+        </div>
       </AppShell.Header>
       <AppShell.Navbar
         id="post-auth-navbar"
@@ -46,12 +90,28 @@ function PostAuthShell() {
         <div className="flex flex-col">
           <div className="flex items-center justify-between">
             <Link
-              to="/"
+              to="/today"
               className="font-(family-name:--heading) text-3xl p-2"
             >
               HomeOps
             </Link>
-            <Burger opened={true} onClick={close} hiddenFrom="lg" size="sm" aria-label="Close menu" aria-expanded={opened} aria-controls="post-auth-navbar" />
+            <Burger
+              opened={true}
+              onClick={close}
+              hiddenFrom="lg"
+              size="sm"
+              aria-label="Close menu"
+              aria-expanded={true}
+              aria-controls="post-auth-navbar"
+              classNames={{
+                root: `
+                  flex items-center justify-center
+                  cursor-pointer
+                  size-11! cursor-pointer rounded
+                  hover:bg-(color:--color-surface-hover)!
+                `
+              }}
+            />
           </div>
           <Combobox
             store={combobox}
