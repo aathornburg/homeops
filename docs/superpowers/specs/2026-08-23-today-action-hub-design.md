@@ -95,8 +95,7 @@ Feature owners remain responsible for:
 
 Today is responsible for:
 
-- Accepting display-ready attention items.
-- Filtering inactive items.
+- Accepting feature-filtered, display-ready attention items.
 - Applying section precedence and date windows.
 - Stable sorting and de-duplication.
 - Shared row presentation and responsive composition.
@@ -105,7 +104,7 @@ The backend eventually owns authoritative task status, dependency blocking, recu
 
 ## Grouping and Sorting Rules
 
-1. Exclude completed, archived, dismissed, unauthorized, and non-actionable items.
+1. Feature adapters exclude completed, archived, dismissed, unauthorized, and non-actionable records before aggregation.
 2. Place blocked and waiting items in `Blocked` regardless of due date.
 3. Place remaining overdue and due-today items in `Needs attention today`.
 4. Place remaining items due within the next seven calendar days in `Due soon`.
@@ -211,11 +210,20 @@ Component and interaction verification should cover:
 
 ## Delivery Slices
 
-### Slice 1 - Today foundation
+### Slice 1A - Attention contract and grouping
+
+- Implement the focused requirements in `docs/superpowers/specs/2026-08-24-today-attention-contract-grouping-design.md`.
+- Add the Today-facing contract, task adapter, and pure aggregator.
+- Normalize realistic mock task records without rendering the Today route.
+- Verify precedence, date boundaries, duplicate handling, exclusions, stable sorting, and input immutability.
+
+Observable outcome: application code can convert mock tasks and an explicit reference date into deterministic Today, Blocked, Due Soon, and Coming Up collections.
+
+### Slice 1B - Today foundation interface
 
 - Build the responsive urgency-first composition from the approved concept.
-- Add the Today-facing contract, task adapter, aggregator, and shared row presentation.
-- Render realistic mock task records across Today, Blocked, Due Soon, and Coming Up.
+- Consume the approved Slice 1A collections through shared section and row presentation.
+- Render realistic mock task records across Today, Blocked, Due Soon, and Coming Up without duplicating grouping rules in components.
 - Include default, loading, empty, and error presentations.
 - Make the leading task checkmark a working completion control with a pending state and rollback on failure.
 - Keep every other record interaction read-only except for navigation to existing working destinations.
