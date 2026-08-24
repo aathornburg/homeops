@@ -34,7 +34,7 @@ Examples include:
 
 - Page title: `Today`.
 - Date rendered in the household timezone once that setting exists; frontend mock data uses the browser's local timezone until then.
-- A task-specific `Add task` action appears only when task creation has a valid working destination. Do not render a nonfunctional control during the read-only slice.
+- A task-specific `Add task` action appears only when task creation has a valid working destination. Do not render a nonfunctional control during the foundation slice.
 
 ### Main column
 
@@ -217,18 +217,18 @@ Component and interaction verification should cover:
 - Add the Today-facing contract, task adapter, aggregator, and shared row presentation.
 - Render realistic mock task records across Today, Blocked, Due Soon, and Coming Up.
 - Include default, loading, empty, and error presentations.
-- Keep records read-only except for navigation to existing working destinations.
+- Make the leading task checkmark a working completion control with a pending state and rollback on failure.
+- Keep every other record interaction read-only except for navigation to existing working destinations.
 - Omit controls whose workflows do not yet exist.
 
-Observable outcome: a household member can open a polished, realistic Today landing page and understand what requires attention without encountering nonfunctional controls.
+Observable outcome: a household member can open a polished, realistic Today landing page, understand what requires attention, and complete an obvious task without encountering nonfunctional controls.
 
-### Slice 2 - Task actions
+### Slice 2 - Expanded task actions
 
-- Add mock-session completion with pending and rollback behavior.
 - Connect task creation, detail, edit, reschedule, and assignment as those task-owned workflows become available.
 - Keep complex actions outside the Today row.
 
-Observable outcome: a household member can complete obvious task actions from Today and reach task-owned workflows for everything else.
+Observable outcome: a household member can reach task-owned workflows for creation and changes while Today remains focused on quick completion and orientation.
 
 ### Slice 3 - Planning signals
 
