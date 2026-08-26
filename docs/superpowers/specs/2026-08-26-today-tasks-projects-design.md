@@ -24,7 +24,7 @@ On sign-in, a household member can see the concrete tasks that matter today, sca
 
 #### For today
 
-One ordered list contains incomplete, actionable tasks that are:
+One ordered list contains incomplete tasks that are:
 
 - Overdue.
 - Due on the reference date.
@@ -32,9 +32,11 @@ One ordered list contains incomplete, actionable tasks that are:
 
 Rows distinguish obligation from intention with plain-language timing badges such as `Overdue`, `Due today`, and `Planned today`. A deadline takes display precedence when a task is both due and scheduled on the reference date. Project association is supporting context, not a separate Today source.
 
+A blocked task remains in this list when its due or scheduled date qualifies it. The row shows a `Blocked` chip and concise blocker context when available, and does not offer completion while the task remains blocked. Blocking alone does not place an undated and unscheduled task on Today.
+
 #### Upcoming
 
-One chronological list replaces the separate `Due soon` and `Coming up` groups. It contains incomplete, actionable tasks with a future due or scheduled date inside the established thirty-day Today horizon.
+One chronological list replaces the separate `Due soon` and `Coming up` groups. It contains incomplete tasks with a future due or scheduled date inside the established thirty-day Today horizon. A qualifying blocked task remains in chronological position and uses the same row-level blocked treatment as `For today`.
 
 The row's primary timing treatment reflects the next relevant date. When both a scheduled date and a later deadline matter, the row shows the nearer plan as the primary badge and the deadline as secondary metadata.
 
@@ -52,7 +54,7 @@ The secondary panel shows current projects independently from the task lists.
 - Completed or archived projects do not appear in the Today panel.
 - `View all` navigates to the Projects area.
 
-There is no separate Blocked panel. Future task dependencies may determine that a task is not actionable, but that calculation does not create a separate Today section.
+There is no separate Blocked panel. Future task dependencies may determine that a task is blocked, but blocking is row-level context rather than a placement rule. A blocked task appears only when its due or scheduled date already qualifies it for `For today` or `Upcoming`.
 
 ## Domain Boundaries
 
@@ -95,7 +97,7 @@ Task records -> Today task projection -> For today / Upcoming
 Project records -> Today project summary -> Projects panel
 ```
 
-The task projection contains only the task facts required for Today presentation and ordering, including identity, title, destination, due date, scheduled date, priority when used, completion eligibility, and optional project context.
+The task projection contains only the task facts required for Today presentation and ordering, including identity, title, destination, due date, scheduled date, priority when used, blocked state and concise blocker context, completion eligibility, and optional project context.
 
 The project summary contains project identity, title, destination, lifecycle state, next actionable task when active, and waiting reason when waiting.
 
@@ -149,11 +151,13 @@ Today is a product surface, not a subscription-marketing surface.
 - Define the Today task projection.
 - Preserve separate due and scheduled date semantics.
 - Group task projections into deterministic `For today` and `Upcoming` lists using an explicit reference calendar date.
+- Preserve qualifying blocked tasks in their date-based collection without making blocking a placement rule.
 - Keep the logic pure and independent of React and the system clock.
 
 ### Follow-on interface slice
 
 - Build the responsive task lists and timing treatments.
+- Show blocked state and concise blocker context on qualifying task rows, with completion unavailable while blocked.
 - Add mock-session completion behavior when Tasks owns a working completion action.
 - Add task-region loading, empty, and error states.
 
@@ -174,6 +178,7 @@ Before a production-facing slice is considered complete:
 
 - Manually verify representative overdue, due-today, planned-today, and upcoming scenarios with a fixed reference date.
 - Verify a task with both scheduled and due dates presents the intended timing hierarchy.
+- Verify a blocked task with a qualifying date remains in its chronological collection, while an undated and unscheduled blocked task remains absent.
 - Verify active and waiting project summaries communicate the correct information.
 - Verify the free, premium, and former-premium project paths.
 - Run lint, type checking, the production build, and `git diff --check`.
