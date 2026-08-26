@@ -1,5 +1,7 @@
 # Today Cross-Feature Action Hub Design
 
+> **Superseded in part:** [Today Tasks and Projects Design](2026-08-26-today-tasks-projects-design.md) replaces this document's cross-feature `AttentionItem` model, four-panel information architecture, direct calendar/notification grouping, and Blocked placement rules. Retain this document only for compatible background and visual intent.
+
 ## Purpose
 
 Define the target-state Today experience before incremental frontend implementation. Today is the canonical post-auth landing page and answers one question: **What needs attention next?**

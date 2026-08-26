@@ -1,5 +1,7 @@
 # Today Attention Contract and Grouping Design
 
+> **Superseded:** Do not implement this contract as written. [Today Tasks and Projects Design](2026-08-26-today-tasks-projects-design.md) replaces the generic `AttentionItem` model with separate Today task and project projections and replaces the four urgency groups with `For today`, `Upcoming`, and a Projects panel.
+
 ## Purpose
 
 Define the first independently testable delivery slice of the Today action hub: normalize eligible mock tasks into a Today-facing `AttentionItem` contract and group those items into deterministic urgency collections.
