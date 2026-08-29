@@ -8,21 +8,24 @@ export type TodayTaskProjection = {
   dueDate: CalendarDate | null,
   scheduledDate: CalendarDate | null,
   projectProjection: ProjectProjection | null,
+  assigneeProjection: AssigneeProjection
 }
 
 
-type TaskCompletionState =
-  | {
-      kind: 'completable'
-      canComplete: true
-    }
-  | {
-      kind: 'blocked'
-      canComplete: false
-      blockedDescription: string | null
-    }
+export type TaskCompletionState = {
+  blocking:
+  | { kind: 'unblocked' }
+  | { kind: 'blocked'; description: string | null }
+
+  canComplete: boolean
+}
 
 export type ProjectProjection = {
   id: string,
   title: string
+}
+
+export type AssigneeProjection = {
+  memberId: string,
+  name: string
 }
