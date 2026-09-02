@@ -478,3 +478,62 @@ Before writing JSX, decide and write down the ownership boundary: the post-auth 
 ### First action next session
 
 Create the smallest underscore-prefixed authenticated pathless route that renders `PostAuthShell` and an `Outlet`, then nest the Today route beneath it so `/today` renders through the shell. While doing that, correct the shell filename typo and remove the stale `Link` import before running the start-of-session review.
+
+## Session Start - 2026-08-30
+
+### Baseline and continuity
+
+- Branch: `main`; HEAD: `3903b15d751743fa41f9f346456f9151798c434d` (`feat(web): add Today task mapping boundary`).
+- The August 10 handoff is outdated. The approved August 26 Today Tasks and Projects design and task-foundation plan now define the current slice.
+- Recent commits define the Today task projection (`1874735`) and add the mock task mapping boundary (`3903b15`). The Today route loads projections and currently renders task titles.
+- No tracked code changes were pending at startup. Untracked items are `.impeccable/critique/`, `apps/web/.tanstack/`, and nine design-reference PNGs under `docs/design/assets/`; left untouched and excluded from commit scope.
+- The foundation plan's unchecked boxes and placeholder starting-point description have not caught up with these commits. Calendar-date grouping is still absent from the Today feature.
+
+### Verification
+
+- `npm.cmd run lint` in `apps/web`: passed.
+- `npm.cmd run build` in `apps/web`: passed, including TypeScript; Vite reported a plugin-timing advisory.
+- `git diff --check`: passed before this documentation update.
+- No automated test script is configured; fixed-date acceptance checks remain part of the foundation plan, with automated tests explicitly deferred.
+- No application code was changed and no commit was created during startup.
+
+### Today's objective and first action
+
+Continue Milestone 3 in `docs/superpowers/plans/2026-08-26-today-task-foundation.md`: implement pure calendar-date placement of task projections into `For today` and `Upcoming`, with an explicit reference date.
+
+First, write expected placements for a small fixed-date example set: overdue, due today, scheduled today without a deadline, a future date within thirty days, and day thirty-one. Then implement placement without React or the system clock. Blocked tasks retain their date-based placement, and each task appears at most once.
+
+Stable ordering and duplicate handling follow in Milestone 4. Responsive task rows and the Projects panel remain later slices; the visual design itself was approved August 26.
+
+## Session End - 2026-08-30
+
+### State and work completed
+
+- Branch: `main`; HEAD remains `3903b15d751743fa41f9f346456f9151798c434d`. No commits were created today.
+- Developer added `TodayTasksModel` with two non-null task arrays and an untracked `features/today/task-grouper.ts` module.
+- The Today route now calls the grouping boundary with a fixed reference date and renders both groups, with initial heading/action markup.
+- Developer added comparison and date-addition helpers in `shared/calendar-date.ts`. The grouper now imports only CalendarDate helpers and has no direct Day.js dependency.
+- Grouping checks nullable due and scheduled dates and uses an inclusive thirty-day horizon. Comparator direction was corrected after the checkpoint; placement still needs scenario verification.
+- Modified application files: `apps/web/src/features/today/types.ts`, `apps/web/src/routes/_postAuth/today.tsx`, and `apps/web/src/shared/calendar-date.ts`; new file: `apps/web/src/features/today/task-grouper.ts`.
+- This handoff is modified. Pre-existing generated directories and design-reference PNGs remain untouched and untracked.
+
+### Decisions
+
+- Shared CalendarDate helpers own general date operations; Today owns null handling, date horizons, and task placement policy.
+- User accepted a single-column Today layout: For today, Upcoming, then a separate Projects section. Project summaries remain separate from task grouping. The August 26 design spec and north-star assets have not yet been updated to reflect the desktop layout decision.
+- Finish the task-foundation slice before continuing visual design. Current plain lists are sufficient for inspecting the grouping work.
+
+### Quick inspection findings for next session
+
+- Comparator direction corrected by the developer after the checkpoint: `isBefore(date1, date2)` and `isAfter(date1, date2)` now compare date1 against date2, matching grouper usage. Comments were updated too. Confirmed by source inspection only; runtime verification remains deferred.
+- Policy amended after the checkpoint: `showOnTodayPanel` may use on-or-before placement for both due and scheduled dates. User approved carrying unfinished past scheduled tasks into Today. Only past due dates earn the `Overdue` label; past plans use `Planned yesterday` or a planned-date label. The earlier finding that past scheduled-only tasks should be excluded is withdrawn.
+- Date comparisons still omit explicit `day` granularity.
+- Stable ordering, duplicate identity handling, and the full fixed-date acceptance set remain outstanding. Day-30 inclusion is intended but not verified in the latest implementation.
+
+### Verification and first action next session
+
+- Startup lint/build passed before today's code changes. An intermediate TypeScript check identified reducer errors; the developer subsequently added the accumulator return and explicit accumulator type.
+- An intermediate in-memory execution of the then-saved loader returned four projections and grouped two into Today and one into Upcoming; this predates the new CalendarDate helpers and does not validate the latest code.
+- No fresh end-of-day tests, build, lint, browser review, or commit was performed.
+- First action: exercise fixed-date placement cases against the corrected helpers: yesterday, today, tomorrow, day 30, day 31, null dates, and an unfinished past plan with a later deadline. Keep shared on-or-before placement for due and scheduled dates under the amended policy; distinguish their timing labels in the later interface slice. Review explicit day granularity, then finish ordering/deduplication before reviewing and committing the slice.
+- The approved past-plan carry-forward policy is recorded in the August 26 design spec and foundation plan, including acceptance scenarios. This documentation amendment changes no application code and does not verify the current implementation.

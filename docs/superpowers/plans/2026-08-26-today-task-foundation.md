@@ -99,11 +99,11 @@ A caller can provide task projections and a chosen reference calendar date and r
 - [ ] Use calendar-day comparison rather than elapsed-hour arithmetic.
 - [ ] Place overdue tasks in `For today`.
 - [ ] Place tasks due on the reference date in `For today`.
-- [ ] Place tasks scheduled on the reference date in `For today` when they are not already represented by a stronger deadline treatment.
-- [ ] Place future due or scheduled tasks within thirty calendar days in `Upcoming`.
+- [ ] Place incomplete tasks scheduled on or before the reference date in `For today` when they are not already represented by a stronger deadline treatment. Preserve the original scheduled date; carrying a plan forward does not make it overdue.
+- [ ] Place future due or scheduled tasks within thirty calendar days in `Upcoming` only when they do not already qualify for `For today`.
 - [ ] Keep a blocked task in its date-based collection when its due or scheduled date qualifies it.
 - [ ] Do not place a task merely because it is blocked.
-- [ ] Omit tasks beyond thirty days and tasks with neither a qualifying due nor scheduled date.
+- [ ] Omit tasks whose only dates are beyond thirty days and tasks with neither a qualifying due nor scheduled date.
 - [ ] Ensure a task appears in at most one collection.
 - [ ] Return both collections even when one or both are empty.
 - [ ] Do not mutate the input collection or its task projections.
@@ -112,6 +112,8 @@ A caller can provide task projections and a chosen reference calendar date and r
 
 - Deadline and planning semantics influence placement without being collapsed into one date.
 - A task that is both due and scheduled today appears once in `For today` and retains deadline precedence.
+- An unfinished task scheduled before the reference date remains in `For today`, with or without a future deadline. A past scheduled date alone never makes it overdue.
+- Moving a past scheduled date into the future removes that placement reason; regroup using the updated schedule and any due date without changing either date inside the grouping boundary.
 - A task scheduled before its later deadline appears according to the nearer relevant date.
 - A qualifying blocked task stays in its chronological collection, while an undated and unscheduled blocked task remains absent.
 - Thirty-day inclusion and thirty-one-day exclusion are unambiguous.
@@ -126,7 +128,7 @@ Both collections remain predictable across renders and future data-source change
 ### Checklist
 
 - [ ] Remove repeated stable task identities deterministically before placement, retaining the first occurrence unless implementation evidence justifies revisiting that rule.
-- [ ] Order `For today` by overdue tasks, then due-today tasks, then planned-today tasks without a current deadline.
+- [ ] Order `For today` by overdue tasks, then due-today tasks, then tasks planned on or before today without an overdue or due-today deadline.
 - [ ] Apply normalized priority within the approved timing order when priority is retained.
 - [ ] Use deterministic title and stable-identity tie-breakers.
 - [ ] Order `Upcoming` by the nearest relevant calendar date before priority and stable tie-breakers.
@@ -151,6 +153,10 @@ Use one fixed reference date and reason through at least these scenarios:
 - [ ] Overdue task.
 - [ ] Due-today task.
 - [ ] Planned-today task with no deadline.
+- [ ] Unfinished task scheduled yesterday with no deadline.
+- [ ] Unfinished task scheduled in the past with a future deadline, including a deadline beyond thirty days.
+- [ ] Past planned task also overdue or due today: one entry, with deadline display precedence.
+- [ ] Past planned task rescheduled into the future: placement follows its updated dates.
 - [ ] Task both due and planned today.
 - [ ] Task planned today with a later deadline.
 - [ ] Future due task at one and thirty days.
@@ -158,6 +164,7 @@ Use one fixed reference date and reason through at least these scenarios:
 - [ ] Future task at thirty-one days.
 - [ ] Undated and unscheduled task.
 - [ ] Blocked task due today.
+- [ ] Blocked task scheduled in the past with no deadline.
 - [ ] Blocked task scheduled in the future.
 - [ ] Blocked task with neither a due nor scheduled date.
 - [ ] Completed, cancelled, archived, and unauthorized task records.

@@ -1,5 +1,10 @@
 import type { CalendarDate, RouteDestination } from "../../shared/types";
 
+export type TodayTasksModel = {
+  todayTasks: TodayTaskProjection[],
+  upcomingTasks: TodayTaskProjection[],
+}
+
 export type TodayTaskProjection = {
   referenceTaskId: string,
   title: string,
@@ -29,3 +34,12 @@ export type AssigneeProjection = {
   memberId: string,
   name: string
 }
+
+export const TODAY_CATEGORY_ORDER = [
+  'overdue',
+  'due-today',
+  'planned'
+] as const;
+
+export type TodayCategory =
+  typeof TODAY_CATEGORY_ORDER[number];

@@ -4,6 +4,8 @@
 
 Approved on 2026-08-26. This design supersedes the cross-feature `AttentionItem` model and four-panel grouping rules in the earlier Today designs where they conflict.
 
+Amended on 2026-08-30: unfinished tasks scheduled before the reference date carry forward into `For today`. A past scheduled date is an unfinished plan, not an overdue deadline.
+
 ## Purpose
 
 Define Today as a task-led work surface with a separate Projects summary. The page distinguishes deadline pressure from intentionally planned work without forcing projects, calendar events, or notifications into task-shaped urgency groups.
@@ -28,19 +30,21 @@ One ordered list contains incomplete tasks that are:
 
 - Overdue.
 - Due on the reference date.
-- Intentionally scheduled for the reference date.
+- Intentionally scheduled on or before the reference date and still incomplete.
 
-Rows distinguish obligation from intention with plain-language timing badges such as `Overdue`, `Due today`, and `Planned today`. A deadline takes display precedence when a task is both due and scheduled on the reference date. Project association is supporting context, not a separate Today source.
+Rows distinguish obligation from intention with plain-language timing badges such as `Overdue`, `Due today`, `Planned today`, and `Planned yesterday` or `Planned Aug 28`. Only a past due date earns the `Overdue` label. A due date on or before the reference date takes display precedence over the scheduled-date treatment. Project association is supporting context, not a separate Today source.
+
+An unfinished past plan stays visible until completed, rescheduled, or otherwise excluded by task lifecycle or visibility rules. Carrying it forward does not rewrite its scheduled date. A past scheduled date also qualifies a task with a future deadline for `For today`; show the later deadline as secondary context rather than duplicating the task in `Upcoming`.
 
 A blocked task remains in this list when its due or scheduled date qualifies it. The row shows a `Blocked` chip and concise blocker context when available, and does not offer completion while the task remains blocked. Blocking alone does not place an undated and unscheduled task on Today.
 
 #### Upcoming
 
-One chronological list replaces the separate `Due soon` and `Coming up` groups. It contains incomplete tasks with a future due or scheduled date inside the established thirty-day Today horizon. A qualifying blocked task remains in chronological position and uses the same row-level blocked treatment as `For today`.
+One chronological list replaces the separate `Due soon` and `Coming up` groups. It contains incomplete tasks not already placed in `For today`, with a future due or scheduled date inside the established thirty-day Today horizon. A qualifying blocked task remains in chronological position and uses the same row-level blocked treatment as `For today`.
 
 The row's primary timing treatment reflects the next relevant date. When both a scheduled date and a later deadline matter, the row shows the nearer plan as the primary badge and the deadline as secondary metadata.
 
-Tasks beyond the Today horizon remain in Tasks or Calendar. Undated and unscheduled tasks remain in their owning task or project context.
+Tasks with only future dates beyond the Today horizon remain in Tasks or Calendar. Undated and unscheduled tasks remain in their owning task or project context.
 
 ### Projects panel
 
@@ -111,7 +115,7 @@ Order by:
 
 1. Overdue tasks.
 2. Tasks due today.
-3. Tasks planned today without a current deadline.
+3. Tasks planned on or before today without an overdue or due-today deadline.
 4. Priority when present.
 5. Stable title and identity tie-breakers.
 
@@ -176,7 +180,7 @@ The grouping boundary should remain straightforward to unit test even while auto
 
 Before a production-facing slice is considered complete:
 
-- Manually verify representative overdue, due-today, planned-today, and upcoming scenarios with a fixed reference date.
+- Manually verify representative overdue, due-today, planned-today, unfinished past-plan, and upcoming scenarios with a fixed reference date. Include past plans with no deadline and with a later deadline; both belong in `For today` without being labeled overdue solely for their scheduled date.
 - Verify a task with both scheduled and due dates presents the intended timing hierarchy.
 - Verify a blocked task with a qualifying date remains in its chronological collection, while an undated and unscheduled blocked task remains absent.
 - Verify active and waiting project summaries communicate the correct information.
