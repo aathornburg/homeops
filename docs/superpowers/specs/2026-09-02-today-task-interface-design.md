@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved visually on 2026-09-02.
+Approved visually on 2026-09-02. The responsive Due/Planned timing treatment was amended and approved on 2026-09-03.
 
 This design supersedes the Today-page Projects panel and the task-row badge treatment in `2026-08-26-today-tasks-projects-design.md`. It does not change that document's task qualification, grouping, ordering, lifecycle, or thirty-day horizon rules.
 
@@ -43,7 +43,7 @@ Task rows use one neutral palette. Status is communicated through words, typogra
 
 - Task titles use primary text.
 - Metadata, project context, assignee, secondary dates, and blocker explanations use secondary or quiet neutral text.
-- Primary timing uses a consistent neutral text treatment in a stable right-aligned column.
+- Desktop timing uses stable `Due` and `Planned` columns. The fact responsible for the task's Today placement receives stronger neutral emphasis; any other timing fact remains visible in a quieter neutral treatment.
 - `Blocked` is plain inline text beside the title, supported by a lock in the completion position.
 - Overdue, due, planned, and blocked rows share the same neutral surface.
 - Mint, ochre, violet, red, and blue must not compete inside the task list as a collection of status colors.
@@ -88,7 +88,7 @@ Every task row has three desktop regions:
 
 1. A completion control.
 2. A flexible title-and-context region.
-3. A stable, right-aligned primary timing region.
+3. A stable timing region divided into `Due` and `Planned` columns.
 
 ### Completion control
 
@@ -100,7 +100,7 @@ Every task row has three desktop regions:
 ### Title and context
 
 - The task title is the strongest row text.
-- The next line may show project or category context, assignee, secondary timing, and blocker reason.
+- The next line may show project or category context, assignee, and blocker reason.
 - Separate compact metadata with centered dots.
 - Show project association only when present.
 - Project context may navigate to the owning project when that destination is available.
@@ -108,17 +108,31 @@ Every task row has three desktop regions:
 
 ### Timing hierarchy
 
-Each row makes one primary timing statement. It is text, not a chip.
+Preserve both due and planned timing facts when both exist. Rank one as primary so the row still communicates why the task appears where it does; do not hide the other fact behind a count, tooltip, popover, or task-detail interaction.
+
+Primary timing follows the same obligation-before-intention hierarchy used by Today ordering:
+
+- An overdue deadline is primary.
+- A deadline on the reference date is primary.
+- Otherwise, a qualifying plan on or before the reference date is primary.
+- In Upcoming, the nearer relevant date is primary.
+
+On desktop:
+
+- Each task group shows `Due` and `Planned` once as shared column headers aligned with every row.
+- A row places each available fact in its corresponding column; an absent fact leaves that column visually empty without placeholder copy.
+- Show the relative meaning first and its calendar date beneath it.
+- Use stronger neutral typography for the primary fact and quieter neutral typography for the secondary fact.
+- Do not outline individual timing cells or render them as chips.
+
+Timing wording includes:
 
 - A past deadline shows `Overdue` with the due date beneath it.
-- A task due on the reference date shows `Due today`.
-- A task planned on the reference date shows `Planned today`.
-- A carried-forward past plan shows `Planned yesterday` or `Planned <date>` as appropriate.
-- An upcoming deadline shows the date with `Due` beneath it.
-- An upcoming scheduled date shows the date with `Planned` beneath it.
-- When a planned date is primary and a later deadline also matters, show the deadline as secondary metadata beside the task context.
+- A deadline or plan on the reference date shows `Today` with its date beneath it in the appropriate column.
+- A carried-forward plan shows `Yesterday` or the appropriate relative/past-date wording with its date beneath it.
+- An upcoming deadline or plan uses concise relative wording such as `In 5 days` with its date beneath it.
 
-The timing region remains in a consistent horizontal position so a household member can scan dates without reading every row.
+The timing columns remain in consistent horizontal positions so a household member can compare Due and Planned facts down the list without reading every row.
 
 ## Interaction Behavior
 
@@ -137,7 +151,8 @@ At narrow widths:
 - Replace the desktop sidebar with the established bottom navigation.
 - Keep `Today`, `Tasks`, `Calendar`, `House Binder`, and `Projects` as top-level destinations.
 - Reduce the `Add task` button to its labeled accessible icon form.
-- Stack the primary timing beneath the title metadata instead of forcing a narrow right column.
+- Remove the shared desktop timing headers. Each task becomes self-contained and repeats its timing meaning as left-aligned natural-language lines beneath the title metadata.
+- Keep the primary timing line stronger and the secondary timing line quieter. Example: `Overdue · due Aug 29`, followed by `Planned today · Sep 3`.
 - Keep blocker reasons readable and allow them to wrap.
 - Preserve the single-column order: page header, `For today`, then `Upcoming`.
 - Do not introduce a project summary after the task lists on mobile.
@@ -171,6 +186,7 @@ The existing Today route model remains the input boundary. Presentation componen
 Backend-filtered task response
   -> Today task projection
   -> existing deterministic grouping
+  -> ranked Due/Planned presentation facts
   -> TodayTaskGroup
   -> TodayTaskRow
 ```
@@ -202,7 +218,9 @@ The slice excludes:
 Before the interface slice is considered complete:
 
 - Verify overdue, due-today, planned-today, carried-forward plan, and upcoming timing text against fixed reference dates.
-- Verify a planned task with a later deadline shows one primary timing statement and secondary deadline metadata.
+- Verify a task with both due and planned dates shows both facts, with exactly one ranked as primary.
+- Verify desktop `Due` and `Planned` headers align with their row values, appear once per group, and leave missing facts blank without placeholder copy.
+- Verify mobile rows replace shared headers with self-contained, left-aligned natural-language timing lines.
 - Verify blocked tasks remain in their date-qualified group, show blocker context, and cannot be completed.
 - Verify project-associated and non-project task rows both align correctly.
 - Verify a single empty state when both groups are empty and omission of an individually empty group.
@@ -220,6 +238,9 @@ This design replaces:
 - A reserved project-panel placeholder.
 - Project waiting indicators on Today.
 - Multiple semantic timing chips on each task row.
+- A single timing column that hides a task's other applicable timing fact.
+- Count bubbles, hover-only timing details, and timing disclosure popovers.
+- Secondary timing mixed into project, category, assignee, or blocker metadata.
 - Status-specific task text colors.
 - Status-specific task-row background colors.
 
