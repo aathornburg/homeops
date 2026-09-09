@@ -56,3 +56,18 @@ export function compareCalendarDates(a: CalendarDate, b: CalendarDate): number {
 
   return 0;
 }
+
+export function calculateDaysBetween(startDate: CalendarDate, endDate: CalendarDate): number {
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  return end.diff(start, 'day');
+}
+
+export function formatFullReadableDate(date: CalendarDate): string {
+  return dayjs(date).format('MMMM D, YYYY');
+}
+
+export function formatShortReadableDate(date: CalendarDate): string {
+  return dayjs(date).format('MMM D');
+}

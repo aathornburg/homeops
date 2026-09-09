@@ -16,7 +16,6 @@ export type TodayTaskProjection = {
   assigneeProjection: AssigneeProjection
 }
 
-
 export type TaskCompletionState = {
   blocking:
   | { kind: 'unblocked' }
@@ -33,6 +32,28 @@ export type ProjectProjection = {
 export type AssigneeProjection = {
   memberId: string,
   name: string
+}
+
+export type TodayPresentationModel = {
+  date: CalendarDate,
+  todayTasks: TodayTaskPresentationModel[],
+  upcomingTasks: TodayTaskPresentationModel[]
+}
+
+export type TodayTaskPresentationModel = {
+  task: TodayTaskProjection,
+  timing: TodayTaskTiming
+}
+
+export type TodayTaskTiming = {
+  due: TimingFact | null,
+  scheduled: TimingFact | null
+  primary: 'due' | 'scheduled'
+}
+
+export type TimingFact = {
+  formattedDate: string,
+  label: string | null
 }
 
 export const TODAY_CATEGORY_ORDER = [

@@ -62,7 +62,7 @@ const mockTasks = [
     cancelledAt: null,
     archivedAt: null,
 
-    dueDate: '2026-08-29',
+    dueDate: '2026-09-29',
     scheduledDate: null,
 
     assignee: {

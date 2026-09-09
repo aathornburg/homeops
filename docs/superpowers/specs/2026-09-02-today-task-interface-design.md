@@ -68,7 +68,7 @@ Desktop uses the established HomeOps shell:
 - Title: `Today`.
 - Show the household-local date when available; use the browser-local date until household timezone support exists.
 - `Add task` is the only primary page action.
-- Render `Add task` only when it has a working destination.
+- Milestone 2 includes the approved Add task shell component under the implementation-staging exception below. Before the interface is considered functionally complete, that action must have a working destination; a nonworking shell must not survive the interaction milestone.
 
 ### For today
 
@@ -81,6 +81,8 @@ The heading includes a sun symbol and task count. Do not add explanatory prose a
 Show the already-defined chronological collection of qualifying future tasks. The heading includes a calendar symbol, task count, and the text `Next 30 days` when the existing thirty-day horizon is active.
 
 The section follows `For today` in the same content column with clear vertical separation.
+
+This Today slice always uses the existing thirty-day horizon, so the horizon label and empty-state copy may state `Next 30 days` without a fallback wording variant.
 
 ## Task Row Anatomy
 
@@ -162,8 +164,8 @@ The mobile layout must remain usable at 390 pixels wide without horizontal scrol
 ## Loading, Empty, and Error States
 
 - Use neutral skeleton rows that match the final task-row geometry while loading.
-- If both collections are empty, replace both sections with one calm empty state confirming that nothing needs attention in the current Today horizon.
-- If only one collection is empty, omit that empty group and show the populated group normally.
+- If only one collection is empty, keep its group heading and symbol and show one compact acknowledgement in place of its list. The empty `Upcoming` group also retains its `Next 30 days` horizon label. Omit the task count and Due/Planned headers for that empty group. Use `Nothing for today` for an empty `For today` group and `Nothing upcoming in the next 30 days` for an empty `Upcoming` group.
+- If both collections are empty, replace both sections with one shared empty state. Show a familiar check inside a quiet green circular field with two restrained ochre spark accents, followed by `Nothing needs attention` and `You’re clear for today and the next 30 days.` Treat the illustration as decorative and hide it from assistive technology because the adjacent text carries the meaning. Do not repeat the Add task action inside the empty state; the single page-header Add task shell remains governed by the Milestone 2 staging rule.
 - A task-source failure replaces the task region with plain-language failure copy and a working retry action.
 - Do not show stale counts when task content is unavailable.
 - Loading, empty, and error states must not introduce project content.
@@ -173,7 +175,7 @@ The mobile layout must remain usable at 390 pixels wide without horizontal scrol
 The interface can be decomposed into focused presentation units:
 
 - `TodayPageHeader`: title, local date, and working add action.
-- `TodayTaskGroup`: heading, symbol, count, optional horizon label, and list.
+- `TodayTaskGroup`: heading, symbol, count, optional horizon label, list, and compact single-group empty acknowledgement.
 - `TodayTaskRow`: completion state, title, context, blocker treatment, and timing.
 - `TodayTaskEmptyState`: one shared state for an empty Today horizon.
 - `TodayTaskErrorState`: task-region error and retry.
@@ -195,6 +197,10 @@ The frontend formats qualifying task facts for presentation. It does not duplica
 
 ## Delivery Scope
 
+### Milestone 2 implementation staging
+
+Milestone 2 fleshes out the approved Today design and may include shell components for interface elements whose working behavior belongs to a later slice. This includes the Add task action and task completion affordances. Their presence in Milestone 2 establishes composition, hierarchy, responsive behavior, and visual states; it does not mean that add-task navigation or completion behavior is implemented in this slice. Those capabilities remain subject to the interaction requirements and capability gates below before the interface is considered functionally complete.
+
 The follow-on Today interface slice includes:
 
 - The responsive task-only page composition.
@@ -205,13 +211,13 @@ The follow-on Today interface slice includes:
 - Loading, empty, and task-source error states.
 - Working task navigation and completion only when their destinations exist.
 
-The slice excludes:
+The functionally completed slice excludes:
 
 - A Projects panel, Projects tab, or project placeholder on Today.
 - Project health, waiting-state, entitlement, or upgrade UI.
 - Frontend lifecycle filtering that duplicates backend query behavior.
 - Calendar events or notifications as Today grouping sources.
-- Nonfunctional controls.
+- Nonfunctional controls after the Milestone 2 shell components reach the interaction milestone.
 
 ## Verification
 
@@ -223,7 +229,7 @@ Before the interface slice is considered complete:
 - Verify mobile rows replace shared headers with self-contained, left-aligned natural-language timing lines.
 - Verify blocked tasks remain in their date-qualified group, show blocker context, and cannot be completed.
 - Verify project-associated and non-project task rows both align correctly.
-- Verify a single empty state when both groups are empty and omission of an individually empty group.
+- Verify the compact group acknowledgement when exactly one group is empty and the shared sparked-check state when both groups are empty.
 - Verify loading and retry states without project content.
 - Verify keyboard navigation, visible focus, accessible names, and that no state depends on color.
 - Verify desktop and 390-pixel mobile layouts without clipping or horizontal scrolling.
