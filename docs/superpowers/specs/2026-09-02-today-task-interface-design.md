@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved visually on 2026-09-02. The responsive Due/Planned timing treatment was amended and approved on 2026-09-03.
+Approved visually on 2026-09-02. The responsive Due/Planned timing treatment was amended and approved on 2026-09-03. The assignee rail and blocked exception-footer treatment were amended and approved on 2026-09-09.
 
 This design supersedes the Today-page Projects panel and the task-row badge treatment in `2026-08-26-today-tasks-projects-design.md`. It does not change that document's task qualification, grouping, ordering, lifecycle, or thirty-day horizon rules.
 
@@ -44,7 +44,7 @@ Task rows use one neutral palette. Status is communicated through words, typogra
 - Task titles use primary text.
 - Metadata, project context, assignee, secondary dates, and blocker explanations use secondary or quiet neutral text.
 - Desktop timing uses stable `Due` and `Planned` columns. The fact responsible for the task's Today placement receives stronger neutral emphasis; any other timing fact remains visible in a quieter neutral treatment.
-- `Blocked` is plain inline text beside the title, supported by a lock in the completion position.
+- A blocked task uses a lock in the completion position and a neutral exception footer beneath its main row content. It does not repeat `Blocked` beside the title.
 - Overdue, due, planned, and blocked rows share the same neutral surface.
 - Mint, ochre, violet, red, and blue must not compete inside the task list as a collection of status colors.
 
@@ -86,11 +86,14 @@ This Today slice always uses the existing thirty-day horizon, so the horizon lab
 
 ## Task Row Anatomy
 
-Every task row has three desktop regions:
+Every task row has four desktop regions:
 
 1. A completion control.
 2. A flexible title-and-context region.
-3. A stable timing region divided into `Due` and `Planned` columns.
+3. A compact assignee region.
+4. A stable timing region divided into `Due` and `Planned` columns.
+
+A blocked row may add one exception footer beneath the main row content. The footer is part of the row rather than a separate alert card.
 
 ### Completion control
 
@@ -102,11 +105,25 @@ Every task row has three desktop regions:
 ### Title and context
 
 - The task title is the strongest row text.
-- The next line may show project or category context, assignee, and blocker reason.
+- The next line may show project or category context.
 - Separate compact metadata with centered dots.
 - Show project association only when present.
 - Project context may navigate to the owning project when that destination is available.
-- A blocked task shows `Blocked` as neutral inline text beside its title and the concise blocker reason in metadata.
+
+### Assignee
+
+- Place the assignee in a dedicated compact region immediately before the Due/Planned timing rail.
+- Prefer a small initials avatar when an assignee is present.
+- Keep the title-and-context region flexible so long titles do not move or orphan the assignee or timing facts.
+
+### Blocked exception footer
+
+- Do not place `Blocked` beside the task title.
+- A blocked task adds a predictable footer beneath its main row content using `Blocked — <blocker reason>`.
+- When no blocker reason is available, show only `Blocked` without a dash or placeholder copy.
+- Give the footer enough width to wrap naturally without shifting the assignee or timing columns.
+- Use neutral secondary text and typographic emphasis rather than a status chip, alert card, or status-specific row color.
+- The approved desktop reference is `docs/design/assets/homeops-today-milestone-3-blocked-row-desktop.png`.
 
 ### Timing hierarchy
 
@@ -155,7 +172,8 @@ At narrow widths:
 - Reduce the `Add task` button to its labeled accessible icon form.
 - Remove the shared desktop timing headers. Each task becomes self-contained and repeats its timing meaning as left-aligned natural-language lines beneath the title metadata.
 - Keep the primary timing line stronger and the secondary timing line quieter. Example: `Overdue · due Aug 29`, followed by `Planned today · Sep 3`.
-- Keep blocker reasons readable and allow them to wrap.
+- Keep the assignee identifiable without crowding the task title or timing lines.
+- Preserve the blocked exception footer beneath the main row content; keep its reason readable and allow it to wrap.
 - Preserve the single-column order: page header, `For today`, then `Upcoming`.
 - Do not introduce a project summary after the task lists on mobile.
 
@@ -176,7 +194,7 @@ The interface can be decomposed into focused presentation units:
 
 - `TodayPageHeader`: title, local date, and working add action.
 - `TodayTaskGroup`: heading, symbol, count, optional horizon label, list, and compact single-group empty acknowledgement.
-- `TodayTaskRow`: completion state, title, context, blocker treatment, and timing.
+- `TodayTaskRow`: completion state, title, context, dedicated assignee rail, blocked exception footer, and timing.
 - `TodayTaskEmptyState`: one shared state for an empty Today horizon.
 - `TodayTaskErrorState`: task-region error and retry.
 
