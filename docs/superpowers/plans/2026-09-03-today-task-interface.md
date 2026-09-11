@@ -88,7 +88,7 @@ Each row communicates the task, context, timing, and blocked state in a stable s
 
 - [ ] Give the task title the strongest row emphasis.
 - [ ] Show available project and assignee context as quiet metadata; omit absent context cleanly.
-- [ ] Show `Blocked` as neutral inline wording and include the concise blocker explanation when available.
+- [ ] Show `Paused` as neutral exception-footer wording for blocked work and include the concise blocker explanation when available.
 - [ ] Place one primary timing statement in a stable desktop region and keep secondary dates in metadata.
 - [ ] Use one neutral row palette for overdue, due, planned, and blocked states.
 - [ ] Reserve familiar lock treatment for blocked work without exposing an enabled completion action.

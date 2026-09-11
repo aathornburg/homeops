@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved visually on 2026-09-02. The responsive Due/Planned timing treatment was amended and approved on 2026-09-03. The assignee rail and blocked exception-footer treatment were amended and approved on 2026-09-09.
+Approved visually on 2026-09-02. The responsive Due/Planned timing treatment was amended and approved on 2026-09-03. The assignee rail and blocked exception-footer treatment were amended and approved on 2026-09-09. The user-facing blocked-state wording was refined from `Blocked` to `Paused` on 2026-09-11; the underlying domain state remains blocked.
 
 This design supersedes the Today-page Projects panel and the task-row badge treatment in `2026-08-26-today-tasks-projects-design.md`. It does not change that document's task qualification, grouping, ordering, lifecycle, or thirty-day horizon rules.
 
@@ -44,7 +44,7 @@ Task rows use one neutral palette. Status is communicated through words, typogra
 - Task titles use primary text.
 - Metadata, project context, assignee, secondary dates, and blocker explanations use secondary or quiet neutral text.
 - Desktop timing uses stable `Due` and `Planned` columns. The fact responsible for the task's Today placement receives stronger neutral emphasis; any other timing fact remains visible in a quieter neutral treatment.
-- A blocked task uses a lock in the completion position and a neutral exception footer beneath its main row content. It does not repeat `Blocked` beside the title.
+- A blocked task uses a lock in the completion position and a neutral exception footer beneath its main row content. It does not repeat `Paused` beside the title.
 - Overdue, due, planned, and blocked rows share the same neutral surface.
 - Mint, ochre, violet, red, and blue must not compete inside the task list as a collection of status colors.
 
@@ -116,14 +116,14 @@ A blocked row may add one exception footer beneath the main row content. The foo
 - Prefer a small initials avatar when an assignee is present.
 - Keep the title-and-context region flexible so long titles do not move or orphan the assignee or timing facts.
 
-### Blocked exception footer
+### Blocked-task exception footer
 
-- Do not place `Blocked` beside the task title.
-- A blocked task adds a predictable footer beneath its main row content using `Blocked — <blocker reason>`.
-- When no blocker reason is available, show only `Blocked` without a dash or placeholder copy.
+- Do not place `Paused` beside the task title.
+- A blocked task adds a predictable footer beneath its main row content using `Paused — <blocker reason>`.
+- When no blocker reason is available, show only `Paused` without a dash or placeholder copy.
 - Give the footer enough width to wrap naturally without shifting the assignee or timing columns.
 - Use neutral secondary text and typographic emphasis rather than a status chip, alert card, or status-specific row color.
-- The approved desktop reference is `docs/design/assets/homeops-today-milestone-3-blocked-row-desktop.png`.
+- The approved desktop reference is `docs/design/assets/homeops-today-milestone-3-blocked-row-desktop.png` for composition and hierarchy. The `Paused` wording above supersedes the reference's visible `Blocked` copy.
 
 ### Timing hierarchy
 
