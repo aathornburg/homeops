@@ -67,7 +67,8 @@ export function LandingComponent() {
               >Start free</LinkButton>
               <LinkButton 
                 to="/"
-                className="ml-5 rounded font-bold bg-(color:--color-background-canvas) color px-4 py-2.5 text-(color:--color-text-primary) hover:bg-(color:--color-background-panel) border-2 border-(color:--color-border-default)"
+                className="ml-5"
+                variant="secondary"
               >Log in</LinkButton>
             </div>
           </div>

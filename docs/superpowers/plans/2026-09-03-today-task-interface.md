@@ -111,11 +111,11 @@ The task region remains calm and truthful while data is pending or unavailable.
 
 ### Checklist
 
-- [ ] Connect the route's pending behavior to neutral skeleton rows shaped like the final list.
-- [ ] Connect task-source failures to plain-language failure content within the task region.
-- [ ] Expose retry only when it invokes a real reload attempt.
-- [ ] Ensure loading and error states do not show stale task counts, empty-state confirmation, or project content.
-- [ ] Establish a repeatable way to exercise pending, success, empty, partial-empty, and failure outcomes without leaving debug behavior in the delivered slice.
+- [x] Connect the route's pending behavior to neutral skeleton rows shaped like the final list.
+- [x] Connect task-source failures to plain-language failure content within the task region.
+- [x] Expose retry only when it invokes a real reload attempt.
+- [x] Ensure loading and error states do not show stale task counts, empty-state confirmation, or project content.
+- [x] Establish a repeatable way to exercise pending, success, empty, partial-empty, and failure outcomes without leaving debug behavior in the delivered slice.
 
 ### Acceptance
 
@@ -123,6 +123,10 @@ The task region remains calm and truthful while data is pending or unavailable.
 - Failure content replaces the task region and offers a working retry.
 - A successful retry returns to normal grouped content.
 - Skeletons approximate final row geometry closely enough to avoid a large layout jump.
+
+### Verification recorded 2026-09-13
+
+Lint, TypeScript/production build, and whitespace checks passed with Normal restored. The developer confirmed retry through failure, pending, and success, partial-empty behavior by temporarily commenting out fixtures, reduced-motion skeletons, and keyboard retry operation. The reusable retry harness remains commented out. Partial-empty verification uses temporary fixture selection rather than a dedicated response alternative.
 
 ## Milestone 5: Make the Today Content Responsive
 

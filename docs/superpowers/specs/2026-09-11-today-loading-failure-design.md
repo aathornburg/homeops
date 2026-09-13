@@ -49,6 +49,8 @@ Pending keeps the page identity visible and replaces the task region with neutra
 
 The skeleton geometry should reserve approximately the same vertical and horizontal space as ordinary task rows so the resolved page does not make a large layout jump.
 
+The approved desktop reference is `docs/design/assets/homeops-today-milestone-4-loading-desktop.png`.
+
 ## Failure Presentation
 
 Failure replaces the entire task region with one quiet inline panel.
@@ -60,6 +62,10 @@ Failure replaces the entire task region with one quiet inline panel.
 - Announce the failure accessibly without repeatedly interrupting the user.
 
 The failure panel must not show task counts, task rows, group headings, empty-state reassurance, or source error details.
+
+The approved desktop reference is `docs/design/assets/homeops-today-milestone-4-error-desktop.png`.
+
+The reusable comparison artifact is `docs/design/homeops-today-milestone-4-loading-error.html`. Open it normally to compare both states, or append `?state=loading` or `?state=error` to isolate a state for capture.
 
 ## Retry Behavior
 

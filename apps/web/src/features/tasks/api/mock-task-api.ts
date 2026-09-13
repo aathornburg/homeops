@@ -1,5 +1,7 @@
 import type { TaskApiDto } from "./types";
 
+// let attemptCount = 0;
+
 const mockTasks = [
   {
     taskId: 'task-replace-air-filter',
@@ -114,5 +116,29 @@ const mockTasks = [
 ] satisfies TaskApiDto[];
 
 export function fetchIncompleteTasks(): Promise<TaskApiDto[]> {
+  // attemptCount += 1;
+
+  // return new Promise<TaskApiDto[]>((resolve, reject) => {
+  //   setTimeout(() => {
+  //     if (attemptCount === 1) {
+  //       reject(new Error('Failed to fetch tasks'));
+  //     } else {
+  //       resolve(mockTasks);
+  //     }
+  //   }, 3500);
+  // });
+
+  /* Manual development responses — enable exactly one; restore Normal before committing. */
+
+  // Regular Tasks
   return Promise.resolve(mockTasks);
+
+  // Empty tasks
+  // return Promise.resolve([]);
+
+  // Pending tasks
+  // return new Promise<TaskApiDto[]>(() => {});
+
+  // Errored tasks
+  // return Promise.reject(new Error('Failed to fetch tasks'));
 }
