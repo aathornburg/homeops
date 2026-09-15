@@ -136,12 +136,12 @@ The Today content itself remains usable from desktop through a 390-pixel viewpor
 
 ### Checklist
 
-- [ ] Keep a single content order at every width: header, `For today`, then `Upcoming`.
-- [ ] Change rows from a desktop timing column to stacked timing beneath task context at narrow widths.
-- [ ] Preserve readable blocker explanations and touch spacing at narrow widths.
-- [ ] Prevent horizontal scrolling, clipped text, and timing overlap.
-- [ ] Reduce the add action to an accessible labeled-icon form only after a working add destination exists.
-- [ ] Record bottom navigation and the Projects destination as separate shell dependencies; do not silently implement them inside the Today content slice.
+- [x] Keep a single content order at every width: header, `For today`, then `Upcoming`.
+- [x] Change rows from a desktop timing column to stacked timing beneath task context at narrow widths.
+- [x] Preserve readable blocker explanations and touch spacing at narrow widths.
+- [x] Prevent horizontal scrolling, clipped text, and timing overlap.
+- [x] Retain the labeled Add task shell action; defer compact action treatment until its working destination exists in Milestone 6.
+- [x] Record bottom navigation and the Projects destination as separate shell dependencies; do not silently implement them inside the Today content slice.
 
 ### Acceptance
 
@@ -149,6 +149,12 @@ The Today content itself remains usable from desktop through a 390-pixel viewpor
 - The page remains usable at 390 pixels with no horizontal overflow.
 - Task title, context, blocker reason, and timing remain readable when stacked.
 - Keyboard focus remains visible at every responsive layout.
+
+### Verification recorded 2026-09-15
+
+Milestone 5 is complete. Lint, TypeScript/production build, and whitespace checks passed with Normal restored. The developer confirmed populated layouts at 320px, 390px, tablet, and desktop after the final 2rem checkbox-column adjustment, long-title and paused-explanation wrapping, narrow empty/error states, and visible keyboard focus. Earlier agent browser checks covered loading skeletons at 320px, 390px, 768px, and 1440px; the final column adjustment was subsequently accepted by the developer.
+
+Real rows and skeletons share responsive column widths, stacked mobile timing, and desktop timing placement. Bottom navigation and the Projects destination remain separate shell dependencies. Add-task and completion functionality remain Milestone 6 work. Responsive acceptance remains manual; no automated test infrastructure was added.
 
 ## Milestone 6: Integrate Only Real Interactions
 

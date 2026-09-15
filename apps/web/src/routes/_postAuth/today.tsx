@@ -33,16 +33,16 @@ function getTasksModel(referenceDate: CalendarDate ): Promise<TodayPresentationM
 
 function TodayPageShell({referenceDate, children}: {referenceDate: CalendarDate, children: React.ReactNode}) {
   return (
-    <main className="p-10">
+    <main className="p-2 md:p-10">
       <div className="max-w-[1600px] mx-auto">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col items-start gap-4 min-[390px]:flex-row min-[390px]:justify-between min-[390px]:items-center">
           <div className="flex flex-col gap-1 items-start">
-            <h1 className="text-5xl">Today</h1>
-            <span className="text-(color:--color-status-warning)">{formatFullReadableDate(referenceDate)}</span>
+            <h1 className="text-3xl md:text-5xl">Today</h1>
+            <span className="text-left text-(color:--color-status-warning)">{formatFullReadableDate(referenceDate)}</span>
           </div>
           <LinkButton
             to="/tasks"
-            className="flex gap-2 items-center rounded font-bold h-min bg-(color:--color-action-primary) px-4 py-2.5 text-(color:--color-background-panel) hover:bg-(color:--color-action-primary-hover)"
+            className="flex gap-2 items-center rounded font-bold h-min bg-(color:--color-action-primary) px-4 py-2.5 text-(color:--color-background-panel) hover:bg-(color:--color-action-primary-hover) w-full min-[390px]:w-auto shrink-0 justify-center whitespace-nowrap"
           >
             <Plus />
             <span>Add task</span>
@@ -65,7 +65,7 @@ function TodayComponent() {
             <div
               className="
                 mt-8
-                grid grid-cols-[minmax(0,1fr)_7rem_7rem]
+                grid md:grid-cols-[minmax(0,1fr)_7rem_7rem]
                 items-end gap-x-4
                 border-x border-transparent
               "
@@ -83,8 +83,8 @@ function TodayComponent() {
               </div>
               {
                 tasksModel.todayTasks.length ? (<>
-                  <div className="text-sm font-semibold text-left pl-4">Due</div>
-                  <div className="text-sm font-semibold text-left pr-4">Planned</div>
+                  <div className="hidden md:block text-sm font-semibold text-left">Due</div>
+                  <div className="hidden md:block text-sm font-semibold text-left">Planned</div>
                 </>) : null
               }
             </div>
@@ -92,7 +92,7 @@ function TodayComponent() {
             <div
               className="
                 mt-8
-                grid grid-cols-[minmax(0,1fr)_7rem_7rem]
+                grid md:grid-cols-[minmax(0,1fr)_7rem_7rem]
                 items-end gap-x-4
                 border-x border-transparent
               "
@@ -115,8 +115,8 @@ function TodayComponent() {
               </div>
               {
               tasksModel.upcomingTasks.length ? (<>
-                  <div className="text-sm font-semibold text-left pl-4">Due</div>
-                  <div className="text-sm font-semibold text-left pr-4">Planned</div>
+                  <div className="hidden md:block text-sm font-semibold text-left">Due</div>
+                  <div className="hidden md:block text-sm font-semibold text-left">Planned</div>
                 </>) : null
               }
             </div>
@@ -192,13 +192,14 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
   return (
     <li
       className="
-        grid grid-cols-[2.5rem_minmax(0,1fr)_3rem_7rem_7rem]
-        items-center gap-x-4
+        p-2 md:p-4
+        grid grid-cols-[2rem_minmax(0,1fr)_2rem] md:grid-cols-[2rem_minmax(0,1fr)_3rem_7rem_7rem]
+        items-start gap-x-2 gap-y-1 md:items-center md:gap-x-4 md:gap-y-0
         bg-(color:--color-background-panel) py-4
       "
     >
       <div
-        className="flex justify-end items-center"
+        className="flex justify-center items-center"
           role={isBlocked ? 'img' : undefined}
           aria-label={
             isBlocked
@@ -210,7 +211,7 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
           isBlocked ? <Lock role="img" aria-hidden="true" /> : <Checkbox />
         }
       </div>
-      <div className="text-left flex flex-col">
+      <div className="text-left flex flex-col gap-1 md:gap-0 min-w-0">
         <div className="font-semibold text-(--color-text-primary) wrap-anywhere">{task.task.title}</div>
         {
           task.task.projectProjection ? (
@@ -220,34 +221,36 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
           ) : null
         }
       </div>
-      <div
-        role="img"
-        aria-label={`Assigned to ${task.task.assigneeProjection.name}`}
-        title={`Assigned to ${task.task.assigneeProjection.name}`}
-        className="
-          grid size-9 shrink-0 self-center place-items-center
-          rounded-full
-          bg-[#7A4526] text-[#F1F5F2]
-          border border-white/15
-          ring-1 ring-[#C98A63]/70
-          ring-offset-2 ring-offset-[var(--color-background-panel)]
-          text-sm font-semibold tracking-tight
-        "
-      >
-        {task.task.assigneeProjection.name.charAt(0).toUpperCase()}
+      <div className="flex min-w-0 justify-center pr-2 md:p-0">
+        <div
+          role="img"
+          aria-label={`Assigned to ${task.task.assigneeProjection.name}`}
+          title={`Assigned to ${task.task.assigneeProjection.name}`}
+          className="
+            grid size-7 md:size-9 shrink-0 self-center place-items-center
+            rounded-full
+            bg-[#7A4526] text-[#F1F5F2]
+            border border-white/15
+            ring-1 ring-[#C98A63]/70
+            ring-offset-2 ring-offset-[var(--color-background-panel)]
+            text-sm font-semibold tracking-tight
+          "
+        >
+          {task.task.assigneeProjection.name.charAt(0).toUpperCase()}
+        </div>
       </div>
-      <div className="flex flex-col items-start justify-center text-left text-sm border-l border-(color:--color-border-default) pl-4 w-full h-full">
+      <div className={`${task.timing.due ? 'block' : 'hidden'} col-start-2 col-end-[-1] md:flex flex-col items-start justify-center text-left text-sm md:border-l border-(color:--color-border-default) md:pl-4 w-full md:h-full md:col-start-4 md:col-end-5 md:row-start-1`}>
         <TodayTaskTimingFact fact={task.timing.due} isPrimary={task.timing.primary === 'due'} />
       </div>
-      <div className="flex flex-col text-left text-sm pr-4">
+      <div className={`${task.timing.scheduled ? 'block' : 'hidden'} col-start-2 col-end-[-1] md:flex flex-col text-left text-sm md:pr-4 md:col-start-5 md:col-end-6 md:row-start-1`}>
         <TodayTaskTimingFact fact={task.timing.scheduled} isPrimary={task.timing.primary === 'scheduled'} />
       </div>
       {
         isBlocked ? (
           <div
             className="
-              col-start-2 col-end-[-1]
-              pr-[2.5rem] text-left
+              md:col-start-2 col-start-1 col-end-[-1]
+              px-2 md:px-0 md:pr-[2.5rem] text-left
             "
           >
             <div
@@ -295,7 +298,9 @@ function TodayTaskTimingFact({fact, isPrimary}: {fact: TimingFact | null, isPrim
           {fact.label}
         </span>
       ) : null}
-
+      {fact.label && fact.formattedDate ? (
+        <span className="md:hidden"> • </span>
+      ) : null}
       <span className="text-sm text-(--color-text-muted)">
         {fact.formattedDate}
       </span>
@@ -359,12 +364,12 @@ function TodayTaskSkeletonRow() {
   return (
     <li
       className="
-        grid grid-cols-[2.5rem_minmax(0,1fr)_3rem_7rem_7rem]
-        min-h-[4.875rem] items-center gap-x-4
-        bg-(color:--color-background-panel) py-4
+        grid grid-cols-[2rem_minmax(0,1fr)_2rem] md:grid-cols-[2rem_minmax(0,1fr)_3rem_7rem_7rem]
+        min-h-[4.875rem] items-start gap-x-2 gap-y-1 md:items-center md:gap-x-4 md:gap-y-0
+        bg-(color:--color-background-panel) py-4 p-2 md:p-4
       "
     >
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-center">
         <TodayTaskSkeletonBone className="size-5 rounded" />
       </div>
       <div className="flex flex-col items-start gap-2">
@@ -375,14 +380,14 @@ function TodayTaskSkeletonRow() {
           className="h-2.5 w-[min(48%,9rem)] rounded-full"
         />
       </div>
-      <div className="grid place-items-center">
-        <TodayTaskSkeletonBone className="size-9 rounded-full" />
+      <div className="flex min-w-0 justify-center pr-2 md:p-0">
+        <TodayTaskSkeletonBone className="size-7 shrink-0 md:size-9 rounded-full" />
       </div>
       <div
         className="
-          flex h-full w-full items-center
-          border-l border-(color:--color-border-default)
-          pl-4
+          flex md:h-full w-full items-start justify-center
+          md:border-l md:border-(color:--color-border-default)
+          col-start-2 col-end-[-1] md:flex flex-col text-left text-sm md:pl-4 md:row-start-1 md:col-start-4 md:col-end-5
         "
       >
         <TodayTaskSkeletonBone
@@ -390,9 +395,9 @@ function TodayTaskSkeletonRow() {
         />
       </div>
 
-      <div className="flex items-center pr-4">
+      <div className="flex items-start col-start-2 col-end-[-1] md:flex flex-col text-left text-sm md:pr-4 md:col-start-5 md:col-end-6 md:row-start-1">
         <TodayTaskSkeletonBone
-          className="h-2.5 w-12 rounded-full"
+          className="h-2.5 w-20 rounded-full"
         />
       </div>
     </li>
