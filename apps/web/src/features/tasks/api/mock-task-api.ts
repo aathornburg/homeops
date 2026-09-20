@@ -1,8 +1,10 @@
+import dayjs from "dayjs";
+import { parseCalendarDate } from "../../../shared/calendar-date";
 import type { TaskApiDto } from "./types";
 
 // let attemptCount = 0;
 
-const mockTasks = [
+const mockTasks: TaskApiDto[] = [
   {
     taskId: 'task-replace-air-filter',
     title: 'Replace HVAC air filter',
@@ -113,7 +115,7 @@ const mockTasks = [
       title: 'Finish home office',
     },
   },
-] satisfies TaskApiDto[];
+];
 
 export function fetchIncompleteTasks(): Promise<TaskApiDto[]> {
   // attemptCount += 1;
@@ -131,7 +133,7 @@ export function fetchIncompleteTasks(): Promise<TaskApiDto[]> {
   /* Manual development responses — enable exactly one; restore Normal before committing. */
 
   // Regular Tasks
-  return Promise.resolve(mockTasks);
+  return Promise.resolve(mockTasks.filter(task => task.status === 'open' && !task.archivedAt));
 
   // Empty tasks
   // return Promise.resolve([]);
@@ -141,4 +143,44 @@ export function fetchIncompleteTasks(): Promise<TaskApiDto[]> {
 
   // Errored tasks
   // return Promise.reject(new Error('Failed to fetch tasks'));
+}
+
+export async function completeTask(taskId: string): Promise<TaskApiDto> {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 1500);
+  });
+
+  // Mock API response
+  const taskApiResponse = mockTasks.find(task => task.taskId === taskId);
+
+  if (!taskApiResponse || !taskApiResponse.capabilities?.canComplete) {
+    return Promise.reject(new Error('Failed to complete task'))
+  }
+
+  taskApiResponse.status = 'completed';
+  taskApiResponse.capabilities.canComplete = false;
+  taskApiResponse.completedAt = parseCalendarDate(dayjs().format('YYYY-MM-DD'));
+
+  return Promise.resolve(taskApiResponse);
+}
+
+// This will need updated in the future. Undoing a completed task if different than just opening a task
+// To undo, we will need to "recalculate" the old task's status
+export async function undoCompleteTask(taskId: string): Promise<TaskApiDto> {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 1500);
+  });
+
+  // Mock API response
+  const taskApiResponse = mockTasks.find(task => task.taskId === taskId);
+
+  if (!taskApiResponse || taskApiResponse.status !== 'completed') {
+    return Promise.reject(new Error('Failed to undo complete task'))
+  }
+
+  taskApiResponse.status = 'open';
+  taskApiResponse.capabilities.canComplete = true;
+  taskApiResponse.completedAt = null;
+
+  return Promise.resolve(taskApiResponse);
 }

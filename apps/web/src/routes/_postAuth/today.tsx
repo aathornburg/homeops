@@ -7,9 +7,12 @@ import dayjs from 'dayjs';
 import { prepareTodayPresentation } from '../../features/today/task-presenter';
 import { LinkButton } from '../../shared/ui/linkButton';
 import { CalendarClock, Check, CircleAlert, Lock, Plus, Sparkle, Sun } from 'lucide-react';
-import { Checkbox } from '@mantine/core';
+import { Checkbox, Loader } from '@mantine/core';
 import type { CalendarDate } from '../../shared/types';
 import { Button } from '../../shared/ui/button';
+import { completeTask, undoCompleteTask } from '../../features/tasks/api/mock-task-api';
+import { useState } from 'react';
+import { notifications } from '@mantine/notifications';
 
 export const Route = createFileRoute('/_postAuth/today')({
   beforeLoad: () => ({
@@ -187,17 +190,85 @@ function TodayTaskGroup({tasks, noTasksMessage}: {tasks: TodayTaskPresentationMo
 }
 
 function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
-  const isBlocked = task.task.taskCompletionState.blocking.kind === 'blocked';
+  const blocking = task.task.taskCompletionState.blocking;
+  const isBlocked = blocking.kind === 'blocked';
+  const blockedDescription = isBlocked ? blocking.description?.trim() : null;
+  const canComplete = task.task.taskCompletionState.canComplete;
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [completionError, setCompletionError] = useState<string | null>(null);
+  const router = useRouter();
+
+  function handleUndo(task: TodayTaskPresentationModel, notificationId: string) {
+    return undoCompleteTask(task.task.referenceTaskId)
+      .then(() => {
+        notifications.hide(notificationId);
+        return router.invalidate({ sync: true });
+      });
+  }
+
+  async function handleCompleteTask(task: TodayTaskPresentationModel) {
+    if (isSaving || !canComplete || isBlocked) {
+      return;
+    }
+
+    setCompletionError(null);
+    setIsSaving(true);
+    await completeTask(task.task.referenceTaskId)
+      .then(() => {
+        const notificationId = crypto.randomUUID();
+
+        notifications.show({
+          id: notificationId,
+          message: (
+            <TodayCompletedNoticeComponent
+              taskTitle={ task.task.title }
+              onUndo={ () => handleUndo(task, notificationId) }
+            />
+          ),
+          autoClose: false,
+          color: 'var(--color-status-success)',
+          icon: (
+            <Check
+              size={18}
+              color="var(--color-action-on-primary)"
+              aria-hidden="true"
+            />
+          ),
+          radius: 'md',
+        });
+        return router.invalidate({ sync: true })
+      })
+      .catch(() => {
+        setCompletionError('Couldn\'t complete this task. Try again.');
+      })
+      .finally(() => { setIsSaving(false) });
+  }
 
   return (
     <li
       className="
+        relative
         p-2 md:p-4
         grid grid-cols-[2rem_minmax(0,1fr)_2rem] md:grid-cols-[2rem_minmax(0,1fr)_3rem_7rem_7rem]
         items-start gap-x-2 gap-y-1 md:items-center md:gap-x-4 md:gap-y-0
         bg-(color:--color-background-panel) py-4
       "
     >
+      {
+        isSaving
+          ? <div className="absolute inset-0 z-10 flex flex-col items-center justify-center backdrop-blur-xs">
+              <Loader
+                aria-hidden="true"
+                color="var(--color-status-warning)"
+                type="dots"
+                size={24}
+                h={12}
+              />
+              <span role="status">Saving...</span>
+            </div>
+          : null
+      }
       <div
         className="flex justify-center items-center"
           role={isBlocked ? 'img' : undefined}
@@ -208,7 +279,16 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
           }
       >
         {
-          isBlocked ? <Lock role="img" aria-hidden="true" /> : <Checkbox />
+          !canComplete
+            ? <Lock role="img" aria-hidden="true" />
+            : <Checkbox
+                color="var(--color-action-primary)"
+                iconColor="var(--color-text-inverse)"
+                disabled={isSaving}
+                aria-label={`Complete ${task.task.title}`}
+                checked={false}
+                onChange={() => handleCompleteTask(task)}
+              />
         }
       </div>
       <div className="text-left flex flex-col gap-1 md:gap-0 min-w-0">
@@ -246,7 +326,7 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
         <TodayTaskTimingFact fact={task.timing.scheduled} isPrimary={task.timing.primary === 'scheduled'} />
       </div>
       {
-        isBlocked ? (
+        completionError || !canComplete  ? (
           <div
             className="
               md:col-start-2 col-start-1 col-end-[-1]
@@ -259,16 +339,23 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
                 pt-3 pr-4 mt-3 text-sm
               "
             >
-              <span className="font-semibold text-(color:--color-text-primary)">
-                Paused
+              <span
+                role={completionError ? 'alert' : undefined}
+                className={`
+                  font-semibold
+                  ${completionError ? 'text-(color:--color-status-danger)' : 'text-(color:--color-text-primary)' }
+                `}
+              >
+                {completionError
+                  ? completionError
+                  : isBlocked
+                    ? 'Paused'
+                    : 'Completion unavailable'}
               </span>
               <span className="wrap-anywhere">
                 {
-                  task.task.taskCompletionState.blocking.kind === 'blocked' && task.task.taskCompletionState.blocking.description?.trim() ? (
-                    <>
-                      {' — '}
-                      {task.task.taskCompletionState.blocking.description}
-                    </>
+                  !completionError && isBlocked && blockedDescription ? (
+                    <> - {blockedDescription}</>
                   ) : null
                 }
               </span>
@@ -305,6 +392,51 @@ function TodayTaskTimingFact({fact, isPrimary}: {fact: TimingFact | null, isPrim
         {fact.formattedDate}
       </span>
     </>
+  );
+}
+
+type TodayCompletedNoticeProps = {
+  taskTitle: string;
+  onUndo: () => Promise<void>;
+}
+
+function TodayCompletedNoticeComponent(todayCompletedNoticeProps: TodayCompletedNoticeProps) {
+  const [isUndoing, setIsUndoing] = useState(false);
+  const [undoError, setUndoError] = useState<string | null>(null);
+
+  async function undoTask() {
+    if (isUndoing) {
+      return;
+    }
+
+    setUndoError(null);
+    setIsUndoing(true);
+
+    await todayCompletedNoticeProps.onUndo()
+      .catch(() => {
+        setUndoError('We\'re having trouble with this right now');
+      })
+      .finally(() => {
+        setIsUndoing(false);
+      });
+  }
+
+  return (
+    <div className="flex justify-between">
+      <div className="flex flex-col">
+        <span>Task completed</span>
+        <span>{ todayCompletedNoticeProps.taskTitle }</span>
+        {
+          undoError ? <span role="alert" className="text-(color:--color-status-danger)">{ undoError }</span> : null
+        }
+      </div>
+      <Button
+        disabled={ isUndoing ? true : undefined }
+        onClick={ undoTask }
+      >
+        { isUndoing ? 'Undoing...' : 'Undo' }
+      </Button>
+    </div>
   );
 }
 
@@ -430,7 +562,7 @@ function TodayErrorComponent() {
         <div className="flex flex-col items-center" role="alert">
           <CircleAlert size={36} className="text-(--color-status-warning)" aria-hidden="true" />
           <h2 className="text-(color:--color-text-muted)">We couldn't load today's tasks</h2>
-          <span className="text-(color:--color-text-subtle)">Your tasks haven’t changed. Check your connection and try again.</span>
+          <span className="text-(color:--color-text-subtle)">Try again to refresh the list.</span>
         </div>
         <Button
           color=""

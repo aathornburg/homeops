@@ -537,3 +537,106 @@ Stable ordering and duplicate handling follow in Milestone 4. Responsive task ro
 - No fresh end-of-day tests, build, lint, browser review, or commit was performed.
 - First action: exercise fixed-date placement cases against the corrected helpers: yesterday, today, tomorrow, day 30, day 31, null dates, and an unfinished past plan with a later deadline. Keep shared on-or-before placement for due and scheduled dates under the amended policy; distinguish their timing labels in the later interface slice. Review explicit day granularity, then finish ordering/deduplication before reviewing and committing the slice.
 - The approved past-plan carry-forward policy is recorded in the August 26 design spec and foundation plan, including acceptance scenarios. This documentation amendment changes no application code and does not verify the current implementation.
+
+## Session Start - 2026-09-19
+
+### Baseline and continuity
+
+- Branch: `main`; starting HEAD: `19cce6fc261ca74dbf04eececabc6b6a091d1092` (`feat(web): make Today content responsive`). Local tracking information shows five commits ahead of `origin/main`; no fetch or push was performed.
+- The August 30 session handoff is outdated. The September 3 Today interface plan records loading/failure acceptance on September 13 and responsive acceptance on September 15. Current work is Milestone 6, task completion.
+- Pre-existing tracked edits: `apps/web/src/features/tasks/api/mock-task-api.ts`, `apps/web/src/routes/_postAuth/today.tsx`, and an independent landing benefit-strip maximum-width change in `apps/web/src/routes/(pre-auth)/-landing.tsx`.
+- Pre-existing untracked items: `.impeccable/critique/`, `apps/web/.tanstack/`, ten reference PNGs under `docs/design/assets/`, and `docs/design/homeops-today-paused-task-row.html`. These remain untouched and outside commit scope.
+
+### Current developer-authored work
+
+- The mock completion operation changes the source task's status, capability, and completion date; the normal fetch now returns only open, unarchived tasks.
+- Today awaits completion and synchronous router invalidation. Each row has a saving guard, disabled pending checkbox, task-specific accessible name, saving status, and completion-error feedback.
+- Completion now uses the primary action color and inverse icon foreground. The checkbox is controlled, so it no longer independently toggles as if it offered Undo.
+- `undoCompleteTask` exists at the mock API boundary but has no UI caller. Task details and Add task still depend on a real task destination; `/tasks` is a placeholder.
+- The September 18 critique predates several of these corrections. Its stale-completion, missing-guard, unnamed-checkbox, and missing-catch findings should not be repeated as descriptions of the current source.
+
+### Review finding and first action
+
+- A successful completion followed by a failed Today reload is not handled by the row's refresh-error catch. A fresh in-memory check against the installed TanStack Router confirmed that `router.invalidate({ sync: true })` resolves while the route match enters `error` state when its loader fails.
+- The route error component then owns the failure UI and currently says `Your tasks haven't changed`, which can be false after a successful mutation. The row-local `Task completed, but the list couldn't refresh` message does not cover this loader-failure path.
+- Today's recommended objective: finish truthful completion/reload failure handling before further interaction work. First, exercise a successful completion followed by a failed fetch, then a successful retry. Decide how the route-level failure UI should describe that outcome without claiming the mutation was rolled back; the developer implements the correction.
+- After that correction, verify the full completion interaction in the browser, including pending keyboard behavior, task/count removal, mutation failure, and reload recovery. Decide Undo scope separately; its API helper alone is not a completed interaction.
+
+### Verification and commit state
+
+- `npm.cmd run lint`: passed.
+- `npm.cmd run build`: passed, including TypeScript and production bundling. Vite emitted a non-blocking plugin-timing advisory.
+- `git diff --check`: passed before this handoff update, with the existing Today CRLF conversion warning.
+- In-memory execution of the existing source modules confirmed: completing an eligible fixture changes its status to completed and reduces the projection count from four to three; duplicate completion rejects; the blocked fixture rejects; API Undo restores the task and projection count to four. These checks ran in an isolated Node process and did not alter repository fixtures or the running app.
+- A separate installed-router diagnostic confirmed the loader-failure/invalidation behavior described above. This is not browser or screen-reader acceptance; no browser interaction review was run at startup.
+- No automated test command is configured in the web package. The diagnostic checks did not add test files.
+- Only this handoff was edited by the agent. No application code was changed, no files were staged, and no commit was created because completion failure handling remains unfinished and the landing edit is a separate scope.
+
+### Follow-up: reload error wording corrected
+
+- Clarified the startup finding: the existing router error component and retry already handle loader failure. Correcting the inaccurate claim about unchanged tasks requires a copy change, not a new failure experience or a functional refactor.
+- The developer changed the error detail to `Try again to refresh the list.` and removed the optional `didComplete` bookkeeping and unreachable loader-failure message from the row handler. The completion catch still reports mutation failure, and the router still owns loader failure.
+- Source review and fresh lint passed after these edits. This resolves the identified wording issue; browser completion/retry acceptance remains outstanding. No application code was edited by the agent and no commit was created.
+
+### Follow-up: successful completion confirmed in the browser
+
+- The developer confirmed that completing a task removes its row and decreases the group count. The successful completion browser check is now accepted.
+- Remaining interaction checks include pending keyboard behavior, mutation failure, and reload failure followed by successful retry. The next focused check is keyboard completion: activate an eligible checkbox with Space and confirm it remains disabled during saving, then the task disappears after completion.
+
+### Follow-up: keyboard completion confirmed
+
+- The developer confirmed keyboard activation with Space, the disabled checkbox during saving, and removal of the task after completion.
+- Remaining checks are mutation failure/recovery and reload failure followed by successful retry. Next, temporarily reject completion before mutating the source; confirm the row and count remain, an error is shown, and the checkbox becomes usable again. Restore normal completion behavior and confirm retry succeeds.
+
+### Follow-up: failure checks deferred; next slice recommended
+
+- The developer explicitly chose to move on without adding temporary fail-once code. Mutation failure/recovery and post-completion reload failure/retry browser checks are deferred, not recorded as passed. Do not keep requiring these manual simulations before further development.
+- Source inspection confirms normal `completeTask` behavior is restored: the simulated throw is removed, and the status/capability/date updates and successful return are active.
+- Recommended next slice, pending developer uptake: offer a completion confirmation with an Undo action that calls the existing `undoCompleteTask` helper and refreshes Today. This would make accidental completion recoverable without expanding into task creation or details. The helper exists, but the user-facing Undo integration has not been implemented or verified.
+
+### Follow-up: notification and Undo implementation checkpoint
+
+- The developer mounted Mantine Notifications inside MantineProvider and added shared Notification theme defaults in `apps/web/src/main.tsx`. Individual completion notices retain their success icon/color and use custom message JSX for the two-line text and Undo button.
+- The current Today handler creates a notification ID, shows the completion notice, and reloads Today. Undo calls the existing API helper, hides that notification after mutation success, and reloads Today. Its callback now returns `Promise<void>` rather than the value returned by `notifications.hide`.
+- Fresh lint failed on two items in `today.tsx`: unused `TaskApiDto` import at line 16 and async reassignment of the render-scoped `notificationId` at line 222 (`react-hooks/immutability`). The production build stopped at the unused-import TypeScript error. Whitespace validation passed with existing CRLF conversion warnings.
+- Recommended correction: remove the stale import; create `const notificationId` inside the completion-success callback and pass that ID explicitly to `handleUndo` instead of mutating a render-scoped variable. The developer retains code authorship.
+- The custom notice still invokes `onUndo` directly from the button; local Undo pending/error handling has not yet been implemented. Browser Undo acceptance has not been explicitly confirmed. Previously deferred failure simulations remain deferred.
+- No application code was changed by the agent and no commit was created. This is an in-progress checkpoint, not a completed Milestone 6 claim.
+
+### Follow-up: checkpoint checks passing
+
+- The developer removed the unused `TaskApiDto` import and now creates a local `const notificationId` inside the completion-success callback, passing it explicitly to `handleUndo`.
+- Fresh lint, TypeScript/production build, and whitespace validation passed after these fixes. Undo pending/error feedback remains the next functional step; deferred failure simulations remain deferred. No commit was created.
+
+## Session Start - 2026-09-20
+
+### Baseline and continuity
+
+- Objective: finish and verify the Milestone 6 completion/Undo interaction. Milestone 5 remains complete; task details, Add task, and project navigation remain separate unfinished integrations.
+- Branch: `main`; starting HEAD: `19cce6fc261ca74dbf04eececabc6b6a091d1092` (`feat(web): make Today content responsive`). Five commits ahead of the cached `origin/main` reference; no fetch or push performed.
+- Pre-existing tracked changes: completion/Undo in `apps/web/src/features/tasks/api/mock-task-api.ts` and `apps/web/src/routes/_postAuth/today.tsx`, notification setup in `apps/web/src/main.tsx`, the independent landing maximum-width edit, and this handoff's September 19 entries.
+- Pre-existing untracked items remain critique output, generated `.tanstack` files, ten design reference PNGs, and the paused-task-row HTML. They remain outside the completion slice.
+- The latest continuity record is the September 19 section of this tracked handoff. The September 18 local handoff predates the truthful reload-error copy, notification integration, and the developer's decision to defer forced-failure browser simulations. Those simulations remain deferred and are not prerequisites to further development.
+
+### Changes since the last checkpoint
+
+- The developer has added local Undo pending/error state: repeated activation is guarded, the button is disabled and says `Undoing...` while pending, errors are exposed with `role="alert"`, and a retry clears the previous error.
+- Successful Undo restores the mock task, hides its completion notification, and refreshes Today. The mock Undo helper now validates completed status before restoring open status, capability, and a null completion date.
+- These are source-review observations. No fresh browser acceptance or runtime mutation diagnostics were performed at this startup; normal completion and keyboard completion retain the developer acceptance recorded September 19.
+
+### Verification and first action
+
+- Fresh `npm.cmd run lint`: passed.
+- Fresh `npm.cmd run build`: TypeScript and production build passed.
+- Fresh `git diff --check`: failed on trailing whitespace at `apps/web/src/features/tasks/api/mock-task-api.ts:173`.
+- First correction: remove the spaces from that blank line. Then exercise one normal completion/Undo round trip in the browser: the row and count decrease after completion; Undo becomes disabled while pending; the row and count return and the notification closes after success. Include keyboard activation of Undo.
+- Browser Undo acceptance, light/mobile/reduced-motion checks, and the previously noted unexplained groceries capability remain open. Deferred failure simulations are not recorded as passed.
+- Only this handoff was edited by the agent. No production or test code was authored, no files were staged, and no commit was created because whitespace validation fails and Undo browser acceptance remains unconfirmed.
+
+### Follow-up: completion and Undo accepted
+
+- The developer confirmed the requested normal completion/Undo browser check, including pending disablement, task/count restoration, notification dismissal, and keyboard activation.
+- The developer removed the trailing whitespace in the mock API. Fresh lint, TypeScript/production build, and whitespace checks now pass.
+- The reviewed checkpoint is `feat(web): add Today completion and Undo`, covering the mock API, Today interaction, notification setup, and this handoff. The independent landing edit and untracked reference/generated files are outside its scope. No production or test code was authored by the agent.
+- This accepts the normal completion/Undo interaction with the mock source, not all of Milestone 6. Forced-failure simulations remain deferred. Light/mobile/reduced-motion acceptance and the unexplained groceries capability remain open.
+- Recommended next focused check: inspect the completion notice at 390px in light and dark themes, including a long task title, and confirm the text and Undo action remain usable without overflow.
