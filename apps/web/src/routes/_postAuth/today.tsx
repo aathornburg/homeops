@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { loadTodayTasks } from '../../features/today/load-today-tasks'
-import type { TimingFact, TodayPresentationModel, TodayTaskPresentationModel, TodayTaskProjection, TodayTasksModel } from '../../features/today/types';
+import type { TodayPresentationModel, TodayTaskPresentationModel, TodayTaskProjection, TodayTasksModel } from '../../features/today/types';
 import { groupTasks } from '../../features/today/task-grouper';
 import { formatFullReadableDate, parseCalendarDate } from '../../shared/calendar-date';
 import dayjs from 'dayjs';
@@ -84,12 +84,6 @@ function TodayComponent() {
                   ) : null
                 }
               </div>
-              {
-                tasksModel.todayTasks.length ? (<>
-                  <div className="hidden md:block text-sm font-semibold text-left">Due</div>
-                  <div className="hidden md:block text-sm font-semibold text-left">Planned</div>
-                </>) : null
-              }
             </div>
             <TodayTaskGroup tasks={tasksModel.todayTasks} noTasksMessage="Nothing for today" />
             <div
@@ -116,12 +110,6 @@ function TodayComponent() {
                   ) : null
                 }
               </div>
-              {
-              tasksModel.upcomingTasks.length ? (<>
-                  <div className="hidden md:block text-sm font-semibold text-left">Due</div>
-                  <div className="hidden md:block text-sm font-semibold text-left">Planned</div>
-                </>) : null
-              }
             </div>
             <TodayTaskGroup tasks={tasksModel.upcomingTasks} noTasksMessage="Nothing upcoming in the next 30 days" />
           </>
@@ -249,10 +237,10 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
     <li
       className="
         relative
-        p-2 md:p-4
-        grid grid-cols-[2rem_minmax(0,1fr)_2rem] md:grid-cols-[2rem_minmax(0,1fr)_3rem_7rem_7rem]
+        p-2 py-4 md:p-4
+        grid grid-cols-[2rem_minmax(0,1fr)_2rem]
         items-start gap-x-2 gap-y-1 md:items-center md:gap-x-4 md:gap-y-0
-        bg-(color:--color-background-panel) py-4
+        bg-(color:--color-background-panel)
       "
     >
       {
@@ -319,12 +307,33 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
           {task.task.assigneeProjection.name.charAt(0).toUpperCase()}
         </div>
       </div>
-      <div className={`${task.timing.due ? 'block' : 'hidden'} col-start-2 col-end-[-1] md:flex flex-col items-start justify-center text-left text-sm md:border-l border-(color:--color-border-default) md:pl-4 w-full md:h-full md:col-start-4 md:col-end-5 md:row-start-1`}>
-        <TodayTaskTimingFact fact={task.timing.due} isPrimary={task.timing.primary === 'due'} />
-      </div>
-      <div className={`${task.timing.scheduled ? 'block' : 'hidden'} col-start-2 col-end-[-1] md:flex flex-col text-left text-sm md:pr-4 md:col-start-5 md:col-end-6 md:row-start-1`}>
-        <TodayTaskTimingFact fact={task.timing.scheduled} isPrimary={task.timing.primary === 'scheduled'} />
-      </div>
+      {
+        (task.timing.due?.label || task.timing.scheduled?.label) ? (
+          <div className="col-start-2 col-end-[-1] min-w-0 flex flex-col gap-y-1 text-left text-sm md:flex-row md:flex-wrap md:gap-x-3">
+            {task.timing.due?.label && (
+              <span className="max-w-full">
+                {task.timing.due.label}
+              </span>
+            )}
+
+            {task.timing.scheduled?.label && (
+              <span className="inline-flex max-w-full items-baseline gap-x-3">
+                {task.timing.due?.label && (
+                  <span
+                    className="hidden shrink-0 md:inline"
+                    aria-hidden="true"
+                  >
+                    •
+                  </span>
+                )}
+                <span className="min-w-0">
+                  {task.timing.scheduled.label}
+                </span>
+              </span>
+            )}
+          </div>
+        ) : null
+      }
       {
         completionError || !canComplete  ? (
           <div
@@ -367,34 +376,6 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
   );
 }
 
-function TodayTaskTimingFact({fact, isPrimary}: {fact: TimingFact | null, isPrimary: boolean}) {
-  if (!fact) {
-    return null
-  }
-
-  return (
-    <>
-      {fact.label ? (
-        <span
-          className={
-            isPrimary
-              ? 'font-medium text-(--color-text-primary)'
-              : 'font-medium text-(--color-text-secondary)'
-          }
-        >
-          {fact.label}
-        </span>
-      ) : null}
-      {fact.label && fact.formattedDate ? (
-        <span className="md:hidden"> • </span>
-      ) : null}
-      <span className="text-sm text-(--color-text-muted)">
-        {fact.formattedDate}
-      </span>
-    </>
-  );
-}
-
 type TodayCompletedNoticeProps = {
   taskTitle: string;
   onUndo: () => Promise<void>;
@@ -422,9 +403,9 @@ function TodayCompletedNoticeComponent(todayCompletedNoticeProps: TodayCompleted
   }
 
   return (
-    <div className="flex justify-between">
+    <div className="flex justify-between items-center gap-2">
       <div className="flex flex-col">
-        <span>Task completed</span>
+        <span className="font-semibold text-(--color-text-primary)">Task completed</span>
         <span>{ todayCompletedNoticeProps.taskTitle }</span>
         {
           undoError ? <span role="alert" className="text-(color:--color-status-danger)">{ undoError }</span> : null
@@ -496,9 +477,10 @@ function TodayTaskSkeletonRow() {
   return (
     <li
       className="
-        grid grid-cols-[2rem_minmax(0,1fr)_2rem] md:grid-cols-[2rem_minmax(0,1fr)_3rem_7rem_7rem]
-        min-h-[4.875rem] items-start gap-x-2 gap-y-1 md:items-center md:gap-x-4 md:gap-y-0
+        grid grid-cols-[2rem_minmax(0,1fr)_2rem]
+        min-h-[4.875rem] items-start gap-x-2 gap-y-1
         bg-(color:--color-background-panel) py-4 p-2 md:p-4
+        md:gap-x-4 md:gap-y-0
       "
     >
       <div className="flex items-center justify-center">
@@ -512,24 +494,12 @@ function TodayTaskSkeletonRow() {
           className="h-2.5 w-[min(48%,9rem)] rounded-full"
         />
       </div>
-      <div className="flex min-w-0 justify-center pr-2 md:p-0">
+      <div className="flex min-w-0 justify-center pr-2">
         <TodayTaskSkeletonBone className="size-7 shrink-0 md:size-9 rounded-full" />
       </div>
-      <div
-        className="
-          flex md:h-full w-full items-start justify-center
-          md:border-l md:border-(color:--color-border-default)
-          col-start-2 col-end-[-1] md:flex flex-col text-left text-sm md:pl-4 md:row-start-1 md:col-start-4 md:col-end-5
-        "
-      >
+      <div className="col-start-2 col-end-[-1] text-left text-sm w-full md:h-full">
         <TodayTaskSkeletonBone
           className="h-2.5 w-16 rounded-full"
-        />
-      </div>
-
-      <div className="flex items-start col-start-2 col-end-[-1] md:flex flex-col text-left text-sm md:pr-4 md:col-start-5 md:col-end-6 md:row-start-1">
-        <TodayTaskSkeletonBone
-          className="h-2.5 w-20 rounded-full"
         />
       </div>
     </li>

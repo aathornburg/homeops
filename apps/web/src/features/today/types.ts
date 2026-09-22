@@ -48,11 +48,9 @@ export type TodayTaskPresentationModel = {
 export type TodayTaskTiming = {
   due: TimingFact | null,
   scheduled: TimingFact | null
-  primary: 'due' | 'scheduled'
 }
 
 export type TimingFact = {
-  formattedDate: string,
   label: string | null
 }
 
