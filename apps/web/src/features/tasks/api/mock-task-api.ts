@@ -1,6 +1,4 @@
-import dayjs from "dayjs";
-import { parseCalendarDate } from "../../../shared/calendar-date";
-import type { TaskApiDto } from "./types";
+import type { TaskApiDto, UpdateTaskInput } from "./types";
 
 // let attemptCount = 0;
 
@@ -8,6 +6,47 @@ const mockTasks: TaskApiDto[] = [
   {
     taskId: 'task-replace-air-filter',
     title: 'Replace HVAC air filter',
+    instructions: {
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'text',
+              text: 'Use the spare filter on the utility-room shelf.',
+            },
+          ],
+        },
+        {
+          type: 'orderedList',
+          content: [
+            {
+              type: 'listItem',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'Check the filter size.' },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'listItem',
+              content: [
+                {
+                  type: 'paragraph',
+                  content: [
+                    { type: 'text', text: 'Write the replacement date on the new filter.' },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
 
     status: 'open',
     completedAt: null,
@@ -34,6 +73,7 @@ const mockTasks: TaskApiDto[] = [
   {
     taskId: 'task-pick-up-groceries',
     title: 'Pick up groceries',
+    instructions: null,
 
     status: 'open',
     completedAt: null,
@@ -60,6 +100,7 @@ const mockTasks: TaskApiDto[] = [
   {
     taskId: 'task-schedule-electrician',
     title: 'Schedule electrician visit',
+    instructions: null,
 
     status: 'open',
     completedAt: null,
@@ -89,6 +130,7 @@ const mockTasks: TaskApiDto[] = [
   {
     taskId: 'task-measure-office-window',
     title: 'Measure office window for blinds',
+    instructions: null,
 
     status: 'open',
     completedAt: null,
@@ -159,7 +201,7 @@ export async function completeTask(taskId: string): Promise<TaskApiDto> {
 
   taskApiResponse.status = 'completed';
   taskApiResponse.capabilities.canComplete = false;
-  taskApiResponse.completedAt = parseCalendarDate(dayjs().format('YYYY-MM-DD'));
+  taskApiResponse.completedAt = new Date().toISOString();
 
   return Promise.resolve(taskApiResponse);
 }
@@ -183,4 +225,20 @@ export async function undoCompleteTask(taskId: string): Promise<TaskApiDto> {
   taskApiResponse.completedAt = null;
 
   return Promise.resolve(taskApiResponse);
+}
+
+export async function updateTask(
+  input: UpdateTaskInput,
+): Promise<TaskApiDto> {
+  // Simulate delay, validate, update, return the updated task.
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 1500);
+  });
+
+  const task = mockTasks.find(task => task.taskId === input.taskId);
+
+  if (!task) {
+    throw new Error('')
+  }
+  return Promise.resolve(task!);
 }

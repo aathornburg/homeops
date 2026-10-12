@@ -1,13 +1,15 @@
+import type { JSONContent } from "@tiptap/core"
 import type { CalendarDate } from "../../shared/types"
 
 export type TaskModel = {
   taskId: string
   title: string
+  instructions: JSONContent | null
 
   status: 'open' | 'completed' | 'cancelled'
-  completedAt: CalendarDate | null
-  cancelledAt: CalendarDate | null
-  archivedAt: CalendarDate | null
+  completedAt: string | null
+  cancelledAt: string | null
+  archivedAt: string | null
 
   dueDate: CalendarDate | null
   scheduledDate: CalendarDate | null

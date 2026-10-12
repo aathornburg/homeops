@@ -5,6 +5,7 @@ import '@mantine/notifications/styles.css';
 import '@mantine/nprogress/styles.css';
 import '@mantine/spotlight/styles.css';
 import '@mantine/notifications';
+import '@mantine/tiptap/styles.css';
 
 import './index.css';
 import { StrictMode } from 'react'
@@ -17,7 +18,12 @@ import { createTheme, MantineProvider, Notification } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 
 const queryClient = new QueryClient();
-const router = createRouter({ routeTree });
+const router = createRouter({
+  routeTree,
+  context: {
+    queryClient
+  }
+});
 
 declare module '@tanstack/react-router' {
   interface Register {

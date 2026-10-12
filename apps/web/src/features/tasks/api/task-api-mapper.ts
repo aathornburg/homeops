@@ -15,11 +15,12 @@ export function mapTaskApiDtoToTaskModel(dto: TaskApiDto): TaskModel {
   return {
     taskId: dto.taskId,
     title: dto.title,
+    instructions: dto.instructions,
 
     status: dto.status,
-    completedAt: parseApiDtoDate(dto.completedAt),
-    cancelledAt: parseApiDtoDate(dto.cancelledAt),
-    archivedAt: parseApiDtoDate(dto.archivedAt),
+    completedAt: dto.completedAt,
+    cancelledAt: dto.cancelledAt,
+    archivedAt: dto.archivedAt,
 
     dueDate: parseApiDtoDate(dto.dueDate),
     scheduledDate: parseApiDtoDate(dto.scheduledDate),

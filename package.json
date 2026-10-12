@@ -1,0 +1,12 @@
+{
+  "name": "homeops",
+  "private": true,
+  "scripts": {
+    "db:up": "docker compose --env-file .env.local up -d --wait postgres",
+    "db:status": "docker compose --env-file .env.local ps",
+    "db:stop": "docker compose --env-file .env.local stop postgres",
+    "db:logs": "docker compose --env-file .env.local logs -f postgres",
+    "db:shell": "docker compose --env-file .env.local exec postgres psql -U postgres -d homeops",
+    "db:repair": "set \"PATH=C:\\devl\\tools\\cmder\\vendor\\git-for-windows\\bin;%PATH%\" && bash ./infra/postgres/flyway-repair.sh"
+  }
+}

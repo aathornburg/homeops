@@ -8,5 +8,5 @@ import type { TodayTaskProjection } from "./types";
 export async function loadTodayTasks(): Promise<TodayTaskProjection[]> {
   const tasks: TaskApiDto[] = await fetchIncompleteTasks();
   const taskModels: TaskModel[] = tasks.map(mapTaskApiDtoToTaskModel);
-  return taskModels.map(task => mapTaskToTodayTaskProjection(task));
+  return taskModels.map(mapTaskToTodayTaskProjection);
 }

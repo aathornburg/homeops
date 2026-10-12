@@ -225,3 +225,11 @@ h2 {
 p {
   margin: 0;
 }
+
+.rich-text ol {
+  list-style-type: decimal;
+}
+
+.rich-text ul {
+  list-style-type: disc;
+}

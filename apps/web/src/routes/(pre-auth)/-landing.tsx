@@ -76,7 +76,7 @@ export function LandingComponent() {
             <div
               className="
                 grid gap-4 grid-cols-4 max-[1100px]:grid-cols-2
-                leading-5 overflow-hidden
+                leading-5 overflow-hidden max-w-[1500px]
                 bg-(color:--color-border-subtle)/50 rounded border-1 border-(color:--color-border-subtle)
               "
             >

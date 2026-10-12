@@ -1,6 +1,5 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router'
-import { loadTodayTasks } from '../../features/today/load-today-tasks'
-import type { TodayPresentationModel, TodayTaskPresentationModel, TodayTaskProjection, TodayTasksModel } from '../../features/today/types';
+import type { TodayTaskPresentationModel } from '../../features/today/types';
 import { groupTasks } from '../../features/today/task-grouper';
 import { formatFullReadableDate, parseCalendarDate } from '../../shared/calendar-date';
 import dayjs from 'dayjs';
@@ -10,28 +9,24 @@ import { CalendarClock, Check, CircleAlert, Lock, Plus, Sparkle, Sun } from 'luc
 import { Checkbox, Loader } from '@mantine/core';
 import type { CalendarDate } from '../../shared/types';
 import { Button } from '../../shared/ui/button';
-import { completeTask, undoCompleteTask } from '../../features/tasks/api/mock-task-api';
-import { useState } from 'react';
-import { notifications } from '@mantine/notifications';
+import { useContext } from 'react';
+import { TaskSelectionContext } from '../../features/tasks/task-selection-context';
+import { useQuery } from '@tanstack/react-query';
+import { incompleteTasksQueryOptions } from '../../features/tasks/task-queries';
+import { mapTaskToTodayTaskProjection } from '../../features/today/task-mapper';
+import { useCompleteTask, useIsCompletingTask } from '../../features/tasks/complete-task';
 
 export const Route = createFileRoute('/_postAuth/today')({
   beforeLoad: () => ({
     referenceDate: getReferenceDate(),
   }),
-  loader: ({context}) => getTasksModel(context.referenceDate),
   pendingComponent: TodayPendingComponent,
   component: TodayComponent,
-  errorComponent: TodayErrorComponent
+  errorComponent: TodayRouteErrorComponent
 })
 
 function getReferenceDate(): CalendarDate {
   return parseCalendarDate(dayjs().format('YYYY-MM-DD'));
-}
-
-function getTasksModel(referenceDate: CalendarDate ): Promise<TodayPresentationModel> {
-  return loadTodayTasks()
-    .then((tasks: TodayTaskProjection[]) => groupTasks(tasks, referenceDate))
-    .then((tasksModel: TodayTasksModel) => prepareTodayPresentation(tasksModel, referenceDate));
 }
 
 function TodayPageShell({referenceDate, children}: {referenceDate: CalendarDate, children: React.ReactNode}) {
@@ -58,7 +53,29 @@ function TodayPageShell({referenceDate, children}: {referenceDate: CalendarDate,
 }
 
 function TodayComponent() {
-  const tasksModel: TodayPresentationModel = Route.useLoaderData();
+  const tasksQuery = useQuery(incompleteTasksQueryOptions);
+  const taskSelection = useContext(TaskSelectionContext);
+  const { referenceDate } = Route.useRouteContext();
+
+  if (tasksQuery.isPending) {
+    return <TodayPendingComponent />;
+  }
+
+  if (tasksQuery.isError) {
+    return <TodayErrorComponent
+      onRetry={() => {
+        void tasksQuery.refetch();
+      }}
+    />;
+  }
+
+  const tasksModel = prepareTodayPresentation(
+    groupTasks(
+      tasksQuery.data.map(mapTaskToTodayTaskProjection),
+      referenceDate,
+    ),
+    referenceDate,
+  );
 
   return (
     <TodayPageShell referenceDate={tasksModel.date}>
@@ -85,7 +102,12 @@ function TodayComponent() {
                 }
               </div>
             </div>
-            <TodayTaskGroup tasks={tasksModel.todayTasks} noTasksMessage="Nothing for today" />
+            <TodayTaskGroup
+              tasks={tasksModel.todayTasks}
+              noTasksMessage="Nothing for today"
+              selectedTaskId={taskSelection.selectedTaskId}
+              onSelect={taskSelection.selectTask}
+            />
             <div
               className="
                 mt-8
@@ -111,7 +133,12 @@ function TodayComponent() {
                 }
               </div>
             </div>
-            <TodayTaskGroup tasks={tasksModel.upcomingTasks} noTasksMessage="Nothing upcoming in the next 30 days" />
+            <TodayTaskGroup
+              tasks={tasksModel.upcomingTasks}
+              noTasksMessage="Nothing upcoming in the next 30 days"
+              selectedTaskId={taskSelection.selectedTaskId}
+              onSelect={taskSelection.selectTask}
+            />
           </>
         ) : (
           <div className="mt-10 flex flex-col justify-center items-center p-8 text-(color:--color-text-subtle) bg-(color:--color-background-panel) rounded-2xl shadow border border-(color:--color-border-default)">
@@ -154,7 +181,19 @@ function TodayComponent() {
   )
 }
 
-function TodayTaskGroup({tasks, noTasksMessage}: {tasks: TodayTaskPresentationModel[], noTasksMessage: string}) {
+type TodayTaskGroupProps = {
+  tasks: TodayTaskPresentationModel[],
+  noTasksMessage: string
+  selectedTaskId: string | null;
+  onSelect: (taskId: string) => void;
+}
+
+function TodayTaskGroup({
+  tasks,
+  noTasksMessage,
+  selectedTaskId,
+  onSelect
+}: TodayTaskGroupProps) {
   return (
     tasks.length ?
       <ul className="
@@ -165,7 +204,12 @@ function TodayTaskGroup({tasks, noTasksMessage}: {tasks: TodayTaskPresentationMo
       ">
         {
           tasks.map((task) => (
-            <TodayTaskRow key={task.task.referenceTaskId} task={task} />
+            <TodayTaskRow
+              key={task.task.referenceTaskId}
+              task={task}
+              isSelected={selectedTaskId === task.task.referenceTaskId}
+              onSelect={onSelect}
+            />
           ))
         }
       </ul>
@@ -177,74 +221,52 @@ function TodayTaskGroup({tasks, noTasksMessage}: {tasks: TodayTaskPresentationMo
   );
 }
 
-function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
+type TodayTaskRowProps = {
+  task: TodayTaskPresentationModel,
+  isSelected: boolean,
+  onSelect: (taskId: string) => void;
+};
+
+function TodayTaskRow({
+  task,
+  isSelected,
+  onSelect
+}: TodayTaskRowProps) {
   const blocking = task.task.taskCompletionState.blocking;
   const isBlocked = blocking.kind === 'blocked';
   const blockedDescription = isBlocked ? blocking.description?.trim() : null;
   const canComplete = task.task.taskCompletionState.canComplete;
-
-  const [isSaving, setIsSaving] = useState(false);
-  const [completionError, setCompletionError] = useState<string | null>(null);
-  const router = useRouter();
-
-  function handleUndo(task: TodayTaskPresentationModel, notificationId: string) {
-    return undoCompleteTask(task.task.referenceTaskId)
-      .then(() => {
-        notifications.hide(notificationId);
-        return router.invalidate({ sync: true });
-      });
-  }
+  const completion = useCompleteTask();
+  const isCompleting = useIsCompletingTask(task.task.referenceTaskId);
 
   async function handleCompleteTask(task: TodayTaskPresentationModel) {
-    if (isSaving || !canComplete || isBlocked) {
+    if (isCompleting || !canComplete || isBlocked) {
       return;
     }
 
-    setCompletionError(null);
-    setIsSaving(true);
-    await completeTask(task.task.referenceTaskId)
-      .then(() => {
-        const notificationId = crypto.randomUUID();
-
-        notifications.show({
-          id: notificationId,
-          message: (
-            <TodayCompletedNoticeComponent
-              taskTitle={ task.task.title }
-              onUndo={ () => handleUndo(task, notificationId) }
-            />
-          ),
-          autoClose: false,
-          color: 'var(--color-status-success)',
-          icon: (
-            <Check
-              size={18}
-              color="var(--color-action-on-primary)"
-              aria-hidden="true"
-            />
-          ),
-          radius: 'md',
-        });
-        return router.invalidate({ sync: true })
-      })
-      .catch(() => {
-        setCompletionError('Couldn\'t complete this task. Try again.');
-      })
-      .finally(() => { setIsSaving(false) });
+    completion.mutate({
+      taskId: task.task.referenceTaskId,
+      taskTitle: task.task.title
+    });
   }
 
   return (
     <li
-      className="
-        relative
+      className={`
+        relative isolate
         p-2 py-4 md:p-4
         grid grid-cols-[2rem_minmax(0,1fr)_2rem]
-        items-start gap-x-2 gap-y-1 md:items-center md:gap-x-4 md:gap-y-0
-        bg-(color:--color-background-panel)
-      "
+        items-start gap-x-2 gap-y-1
+        md:items-center md:gap-x-4 md:gap-y-0
+        ${
+          isSelected
+            ? 'bg-(color:--color-selected) hover:bg-(color:--color-selected-hover)'
+            : 'bg-(color:--color-background-panel) hover:bg-(color:--color-surface-hover)'
+        }
+      `}
     >
       {
-        isSaving
+        isCompleting
           ? <div className="absolute inset-0 z-10 flex flex-col items-center justify-center backdrop-blur-xs">
               <Loader
                 aria-hidden="true"
@@ -258,7 +280,10 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
           : null
       }
       <div
-        className="flex justify-center items-center"
+        className={`
+          flex justify-center items-center
+          ${canComplete ? 'relative z-[2]' : ''}
+        `}
           role={isBlocked ? 'img' : undefined}
           aria-label={
             isBlocked
@@ -272,14 +297,30 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
             : <Checkbox
                 color="var(--color-action-primary)"
                 iconColor="var(--color-text-inverse)"
-                disabled={isSaving}
+                disabled={isCompleting}
                 aria-label={`Complete ${task.task.title}`}
                 checked={false}
                 onChange={() => handleCompleteTask(task)}
               />
         }
       </div>
-      <div className="text-left flex flex-col gap-1 md:gap-0 min-w-0">
+      <button
+          type="button"
+          disabled={isCompleting}
+          onClick={() => onSelect(task.task.referenceTaskId)}
+          aria-label={`View details for ${task.task.title}`}
+          className="
+            text-left flex flex-col gap-1 md:gap-0 min-w-0
+            cursor-pointer
+            after:content-['']
+            after:absolute after:inset-0 after:z-[1]
+            after:cursor-pointer
+            focus-visible:outline-none
+            focus-visible:after:outline-2
+            focus-visible:after:outline-offset-[-2px]
+            focus-visible:after:outline-(color:--color-focus-ring)
+          "
+        >
         <div className="font-semibold text-(--color-text-primary) wrap-anywhere">{task.task.title}</div>
         {
           task.task.projectProjection ? (
@@ -288,7 +329,7 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
             </div>
           ) : null
         }
-      </div>
+      </button>
       <div className="flex min-w-0 justify-center pr-2 md:p-0">
         <div
           role="img"
@@ -335,7 +376,7 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
         ) : null
       }
       {
-        completionError || !canComplete  ? (
+        completion.isError || !canComplete  ? (
           <div
             className="
               md:col-start-2 col-start-1 col-end-[-1]
@@ -349,21 +390,21 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
               "
             >
               <span
-                role={completionError ? 'alert' : undefined}
+                role={completion.isError ? 'alert' : undefined}
                 className={`
                   font-semibold
-                  ${completionError ? 'text-(color:--color-status-danger)' : 'text-(color:--color-text-primary)' }
+                  ${completion.isError ? 'text-(color:--color-status-danger)' : 'text-(color:--color-text-primary)' }
                 `}
               >
-                {completionError
-                  ? completionError
+                {completion.isError
+                  ? 'Couldn\'t complete this task. Try again.'
                   : isBlocked
                     ? 'Paused'
                     : 'Completion unavailable'}
               </span>
               <span className="wrap-anywhere">
                 {
-                  !completionError && isBlocked && blockedDescription ? (
+                  !completion.isError && isBlocked && blockedDescription ? (
                     <> - {blockedDescription}</>
                   ) : null
                 }
@@ -373,51 +414,6 @@ function TodayTaskRow({task}: {task: TodayTaskPresentationModel}) {
         ) : null
       }
     </li>
-  );
-}
-
-type TodayCompletedNoticeProps = {
-  taskTitle: string;
-  onUndo: () => Promise<void>;
-}
-
-function TodayCompletedNoticeComponent(todayCompletedNoticeProps: TodayCompletedNoticeProps) {
-  const [isUndoing, setIsUndoing] = useState(false);
-  const [undoError, setUndoError] = useState<string | null>(null);
-
-  async function undoTask() {
-    if (isUndoing) {
-      return;
-    }
-
-    setUndoError(null);
-    setIsUndoing(true);
-
-    await todayCompletedNoticeProps.onUndo()
-      .catch(() => {
-        setUndoError('We\'re having trouble with this right now');
-      })
-      .finally(() => {
-        setIsUndoing(false);
-      });
-  }
-
-  return (
-    <div className="flex justify-between items-center gap-2">
-      <div className="flex flex-col">
-        <span className="font-semibold text-(--color-text-primary)">Task completed</span>
-        <span>{ todayCompletedNoticeProps.taskTitle }</span>
-        {
-          undoError ? <span role="alert" className="text-(color:--color-status-danger)">{ undoError }</span> : null
-        }
-      </div>
-      <Button
-        disabled={ isUndoing ? true : undefined }
-        onClick={ undoTask }
-      >
-        { isUndoing ? 'Undoing...' : 'Undo' }
-      </Button>
-    </div>
   );
 }
 
@@ -518,13 +514,8 @@ function TodayTaskSkeletonBone({ className }: { className: string }) {
   )
 }
 
-function TodayErrorComponent() {
-  const router = useRouter();
+function TodayErrorComponent({ onRetry }: { onRetry: () => void }) {
   const routeContext = Route.useRouteContext();
-
-  function retry() {
-    router.invalidate();
-  }
 
   return (
     <TodayPageShell referenceDate={routeContext.referenceDate}>
@@ -538,10 +529,22 @@ function TodayErrorComponent() {
           color=""
           className="mt-5"
           type="button"
-          onClick={retry}
+          onClick={onRetry}
           variant="primary"
         >Try again</Button>
       </div>
     </TodayPageShell>
+  );
+}
+
+function TodayRouteErrorComponent() {
+  const router = useRouter();
+
+  return (
+    <TodayErrorComponent
+      onRetry={() => {
+        void router.invalidate();
+      }}
+    />
   );
 }
